@@ -1,19 +1,32 @@
-console.log("http://vAtelier.net")
+console.log("http://vAtelier.net");
 
 // initiate a skybox that invites to think about your own notes, helps to focus and be creative
-console.log("http://learningthreejs.com/blog/2011/08/15/lets-do-a-sky/")
+console.log("http://learningthreejs.com/blog/2011/08/15/lets-do-a-sky/");
 
 // load a sub-graph of nodes with threshold of 10 nodes
 // if no differential positioning set default value of 0
+Nodes = [
+	{Id:"PmWiki.Links", Group:"PmWiki", Label:"Links", Size:6064, Time:1161032541, Rev:5},
+	{Id:"PmWiki.WikiWikiWeb", Group:"PmWiki", Label:"WikiWikiWeb", Size:6064, Time:1161032541, Rev:10},
+	{Id:"PmWiki.WikiSandbox", Group:"PmWiki", Label:"WikiSandbox", Size:6064, Time:1161032541, Rev:50}
+];
+ 
+Vertices = [
+	{FROM:"PmWiki.Links", TO:"PmWiki.WikiWikiWeb"},
+	{FROM:"PmWiki.Links", TO:"PmWiki.WikiSandbox"}
+];
+
+BASEURL = "http://fabien.benetou.fr/";
+BASELOCALPATH = "/home/web/benetou.fr/fabien/wiki.d/";
 
 // load a plane at reasonnable distance from viewer
 
 // position nodes with force layout on the plane with differential positioning
-console.log("https://vida.io/documents/HRt7haiqq8Sbfh4nn")
+console.log("https://vida.io/documents/HRt7haiqq8Sbfh4nn");
 
 // apply differential positioning to nodes, change value with picking
 // handle the BT remote as picking with view
-console.log("http://soledadpenades.com/articles/three-js-tutorials/object-picking/")
+console.log("http://soledadpenades.com/articles/three-js-tutorials/object-picking/");
 
 // interacting nodes and save potential differential positioning
 // save after a reasonnable pause after an interaction
