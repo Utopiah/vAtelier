@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>vAtelier : VR + controller + ?</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+      body {
+        margin: 0px;
+        overflow: hidden;
+      }
+      #example {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="example"></div>
+
+  <script src="js/third-party/threejs/three.js"></script>
+  <script src="js/third-party/threejs/StereoEffect.js"></script>
+  <script src="js/third-party/threejs/DeviceOrientationControls.js"></script>
+  <script src="js/third-party/threejs/OrbitControls.js"></script>
+  <script src="js/third-party/threejs/THREEx.KeyboardState.js"></script>
+  
+  <script src="http://stemkoski.github.io/Three.js/js/THREEx.WindowResize.js"></script>
+
+  <script>
+
+
+    var camera, scene, renderer;
+    var effect, controls;
+    var element, container;
+
+    var keyboard = new THREEx.KeyboardState();
+
+    var clock = new THREE.Clock();
+
+    // PIM related data
+
+    var PIMurl = "http://fabien.benetou.fr/";
+    var PIMurlTrailing = "?action=print";
+
+    var TexturesURL = "ImagesFromPIM/";
+
+	console.log("http://vAtelier.net");
+
+	// TODO initiate a skybox that invites to think about your own notes, helps to focus and be creative
+	console.log("http://learningthreejs.com/blog/2011/08/15/lets-do-a-sky/");
+
+
+
+    // load a sub-graph of nodes with threshold of 10 nodes
+    // if no differential positioning set default value of 0
+
+    BASEURL = "http://fabien.benetou.fr/";
+    BASELOCALPATH = "/home/web/benetou.fr/fabien/wiki.d/";
+    
+    // https://github.com/ariya/phantomjs/blob/master/examples/render_multi_url.js
+    // consider using phantomjs to pre-render the textures
+    // could be nightly batch job with an hourly run only for new pages since (iif fast enough)
+    // could also check for date difference, display a marker if new page since app loaded and propose a force fresh texture generation then reload
+    var Nodes = [
+                 {Id:"PmWiki.Links", Group:"PmWiki", Label:"Links", Size:6064, Time:1161032541, Rev:5, Texture: "HomePage.png"},
+                 {Id:"PmWiki.WikiWikiWeb", Group:"PmWiki", Label:"WikiWikiWeb", Size:6064, Time:1161032541, Rev:10, Texture: "JavaScript.png"},
+                 {Id:"PmWiki.WikiSandbox", Group:"PmWiki", Label:"WikiSandbox", Size:6064, Time:1161032541, Rev:50, Texture: "3DVisualization.png"},
+                 ];
+    var Vertices = [
+                    {FROM:"PmWiki.Links", TO:"PmWiki.WikiWikiWeb"},
+                    {FROM:"PmWiki.Links", TO:"PmWiki.WikiSandbox"}
+                    ];
+
+    init();
+    animate();
+
+    function init() {
+      renderer = new THREE.WebGLRenderer();
+      element = renderer.domElement;
+      container = document.getElementById('example');
+      container.appendChild(element);
+
+// apply ThreeJS stereo effect
+      effect = new THREE.StereoEffect(renderer);
+
+      scene = new THREE.Scene();
+
+      camera = new THREE.PerspectiveCamera(90, 1, 0.001, 700);
+      camera.position.set(0, 10, 0);
+      scene.add(camera);
+
+      controls = new THREE.OrbitControls(camera, element);
+      controls.rotateUp(Math.PI / 4);
+      controls.target.set(
+        camera.position.x + 0.1,
+        camera.position.y,
+        camera.position.z
+      );
+      controls.noZoom = true;
+      controls.noPan = true;
+
+      function setOrientationControls(e) {
+        if (!e.alpha) {
+          return;
+        }
+
+        controls = new THREE.DeviceOrientationControls(camera, true);
+        controls.connect();
+        controls.update();
+
+        element.addEventListener('click', fullscreen, false);
+
+        window.removeEventListener('deviceorientation', setOrientationControls, true);
+      }
+      window.addEventListener('deviceorientation', setOrientationControls, true);
+
+
+      var light = new THREE.HemisphereLight(0x777777, 0x000000, 0.6);
+      scene.add(light);
+
+      var texture = THREE.ImageUtils.loadTexture(
+        'textures/patterns/checker.png'
+      );
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat = new THREE.Vector2(50, 50);
+      texture.anisotropy = renderer.getMaxAnisotropy();
+
+      var material = new THREE.MeshPhongMaterial({
+        color: 0xffffff,
+        specular: 0xffffff,
+        shininess: 20,
+        shading: THREE.FlatShading,
+        map: texture
+      });
+
+      var geometry = new THREE.PlaneGeometry(1000, 1000);
+
+      var mesh = new THREE.Mesh(geometry, material);
+      mesh.rotation.x = -Math.PI / 2;
+      scene.add(mesh);
+
+      var NodeCubes = [];
+      for (var i = 0; i < Nodes.length; i += 1) {
+	var mysize = 100;
+	// depth based on number of revisions i.e. the more revision, the deeper the shape
+	var mygeometry = new THREE.CubeGeometry( mysize, mysize, mysize / 100 * Nodes[i].Rev )
+	var mycubecolor = ( Math.random() * 0xffffff );
+	for ( var j = 0; j < mygeometry.faces.length; j ++ ) {
+	    mygeometry.faces[ j ].color.setHex( mycubecolor );
+	}
+	mytexture = THREE.ImageUtils.loadTexture(TexturesURL + Nodes[i].Texture);
+	var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+	tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+	tmpcube.position.set(150-i*120, 50, 200);
+	// position nodes with force layout on the plane with differential positioning
+	console.log("https://vida.io/documents/HRt7haiqq8Sbfh4nn");
+	// align all nodes on a line
+	
+        scene.add( tmpcube );
+        NodeCubes.push(tmpcube);
+      }
+      MovingCube = NodeCubes[0];
+      StaticCube = NodeCubes[NodeCubes.length-1];
+
+// TODO load a plane at reasonnable distance from viewer
+
+      window.addEventListener('resize', resize, false);
+      setTimeout(resize, 1);
+    }
+
+    function resize() {
+      var width = container.offsetWidth;
+      var height = container.offsetHeight;
+
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(width, height);
+      effect.setSize(width, height);
+    }
+
+    function update(dt) {
+// apply differential positioning to nodes, change value with picking
+// handle the BT remote as picking with view
+console.log("http://soledadpenades.com/articles/three-js-tutorials/object-picking/");
+
+      resize();
+
+      controls.update(dt);
+
+	var moveDistance = 5;
+	// global coordinates
+	//TODO should change the facing direction too
+	if ( keyboard.pressed("left") && camera.position.x < 200 )
+      		camera.position.x += moveDistance;
+	if ( keyboard.pressed("right") && camera.position.x > -200 )
+      		camera.position.x -= moveDistance;
+	if ( keyboard.pressed("up") && camera.position.z < 200 )
+      		camera.position.z += moveDistance;
+	if ( keyboard.pressed("down") && camera.position.z > -200 )
+      		camera.position.z -= moveDistance;
+
+	if ( keyboard.pressed("null") ){
+		StaticCube.rotation.z += 0.1;
+		MovingCube.position.x -= moveDistance;
+	}
+      camera.updateProjectionMatrix();
+
+// interacting nodes and save potential differential positioning
+// save after a reasonnable pause after an interaction
+
+    }
+
+    function render(dt) {
+      effect.render(scene, camera);
+    }
+
+    function animate(t) {
+      requestAnimationFrame(animate);
+
+      update(clock.getDelta());
+      render(clock.getDelta());
+    }
+
+    function fullscreen() {
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if (container.msRequestFullscreen) {
+        container.msRequestFullscreen();
+      } else if (container.mozRequestFullScreen) {
+        container.mozRequestFullScreen();
+      } else if (container.webkitRequestFullscreen) {
+        container.webkitRequestFullscreen();
+      }
+    }
+  </script>
+  </body>
+</html>
