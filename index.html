@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Web VR boilerplate (Cardboard and Oculus)</title>
+<title>PIM in VR</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 <meta name="mobile-web-app-capable" content="yes">
@@ -29,6 +29,7 @@ body {
 CARDBOARD_DEBUG = false;
 </script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"></script>
 <script src="./js/three.js"></script>
 <!--
 VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object.
@@ -51,6 +52,21 @@ Helps enter and exit VR mode, provides best practices while in VR.
 
 
 <script>
+
+var FizzyText = function() {
+  this.message = 'pick and move the central cube';
+  this.keys = 'left key to de/activate';
+};
+
+
+window.onload = function() {
+  var text = new FizzyText();
+  var gui = new dat.GUI();
+  gui.add(text, 'message');
+  gui.add(text, 'keys');
+};
+
+
 //Setup three.js WebGL renderer
 var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -164,19 +180,20 @@ var newPos = new THREE.Vector3();
       MovingCube = NodeCubes[0];
       StaticCube = NodeCubes[NodeCubes.length-1];
 
-cube.ongazelong = function(){
+MovableCube = NodeCubes[1];
+MovableCube.ongazelong = function(){
 
 }
 
-cube.ongazeover = function(){
+MovableCube.ongazeover = function(){
   gazed = true;
 }
 
-cube.ongazeout = function(){
+MovableCube.ongazeout = function(){
   gazed = false;
 }
 
-reticle.add_collider(cube);
+reticle.add_collider(MovableCube);
 
 // Position cube mesh
 
@@ -186,7 +203,7 @@ oldcube.position.z = -1;
 cube.position.z = -1;
 
 // Add cube mesh to your three.js scene
-scene.add(oldcube);
+//scene.add(oldcube);
 scene.add(cube);
 
 // Also add a repeating grid as a skybox.
@@ -224,11 +241,12 @@ function animate() {
   requestAnimationFrame(animate);
   
   if(picked && gazed){
-    lookAtVector = new THREE.Vector3(0,0, -1);
+    lookAtVector = new THREE.Vector3(0,0, -2);
     lookAtVector.applyQuaternion(camera.quaternion);
     newPos.copy(lookAtVector);
     newPos.add(camera.position);
-    cube.position.copy(newPos);
+
+    MovableCube.position.copy(newPos);
   }
 }
 
