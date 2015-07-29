@@ -56,6 +56,7 @@ Helps enter and exit VR mode, provides best practices while in VR.
 var FizzyText = function() {
   this.message = 'pick and move the central cube';
   this.keys = 'left key to de/activate';
+  this.recul = 0;
 };
 
 
@@ -64,6 +65,7 @@ window.onload = function() {
   var gui = new dat.GUI();
   gui.add(text, 'message');
   gui.add(text, 'keys');
+  gui.add(text, 'recul', -1, 1);
 };
 
 
