@@ -52,29 +52,8 @@ RenderUrlsToFile = function(urls, callbackPerUrl, callbackFinal) {
 	return retrieve();
 };
 
-arrayOfUrls = null;
-arrayOfUrls = [
-"fabien.benetou.fr/PersonalInformationStream/WithoutNotesJuly15",
-"fabien.benetou.fr/PersonalInformationStream/WithoutNotesJune15",
-"fabien.benetou.fr/PersonalInformationStream/WithoutNotesMay15",
-"fabien.benetou.fr/Site/SideBar",
-"fabien.benetou.fr/ReadingNotes/SmarterThanYouThink",
-"fabien.benetou.fr/Events/OutdoorDiverNemo33May2015",
-"fabien.benetou.fr/Tools/Bitcoin",
-"fabien.benetou.fr/Anime/CurrentlyWatching",
-"fabien.benetou.fr/PersonalInformationStream/WithoutNotesApril15",
-"fabien.benetou.fr/Events/IndoorDiverNemo33April2015",
-"fabien.benetou.fr/Planning/Xmaswishlist",
-"fabien.benetou.fr/Tools/Python",
-"fabien.benetou.fr/Languages/Languages",
-"fabien.benetou.fr/Languages/English",
-"fabien.benetou.fr/ReadingNotes/DesigningVirtualRealitySystems",
-"fabien.benetou.fr/PersonalInformationStream/WithoutNotesMarch15",
-"fabien.benetou.fr/Wiki/3DVisualization",
-"fabien.benetou.fr/Tools/Programming",
-"fabien.benetou.fr/MOOCs/Interactive3DGraphics",
-"fabien.benetou.fr/Tools/JavaScript",
-];
+// arrayOfUrls = null;
+require('./urls_to_render.js');
 
 RenderUrlsToFile(arrayOfUrls, (function(status, url, file) {
 	if (status !== "success") {
