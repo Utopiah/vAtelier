@@ -5,11 +5,16 @@ import re
 
 
 MyDir = "/home/web/benetou.fr/fabien/wiki.d/"
-MyJSONfile = "Wiki.json"
+MyJSONfile = "../Wiki.json"
 
 MyWikiFiles = os.listdir(MyDir)
 
 data = {}
+
+""" Consider instead
+    https://github.com/jsongraph/json-graph-specification
+    possibly using https://github.com/jsongraph/jsongraph.py
+"""
 
 """ Target format
     var Nodes = [
