@@ -126,6 +126,11 @@ var newPos = new THREE.Vector3();
     // consider using phantomjs to pre-render the textures
     // could be nightly batch job with an hourly run only for new pages since (iif fast enough)
     // could also check for date difference, display a marker if new page since app loaded and propose a force fresh texture generation then reload
+    var Nodes2 = [
+                 {Id:"PmWiki.Links", Group:"PmWiki", Label:"Links", Size:6064, Time:1161032541, Rev:5, Texture: "HomePage.png"},
+                 {Id:"PmWiki.WikiWikiWeb", Group:"PmWiki", Label:"WikiWikiWeb", Size:6064, Time:1161032541, Rev:10, Texture: "JavaScript.png"},
+                 {Id:"PmWiki.WikiSandbox", Group:"PmWiki", Label:"WikiSandbox", Size:6064, Time:1161032541, Rev:50, Texture: "3DVisualization.png"},
+                 ];
     var Nodes = [
                  {Id:"PmWiki.Links", Group:"PmWiki", Label:"Links", Size:6064, Time:1161032541, Rev:5, Texture: "HomePage.png"},
                  {Id:"PmWiki.WikiWikiWeb", Group:"PmWiki", Label:"WikiWikiWeb", Size:6064, Time:1161032541, Rev:10, Texture: "JavaScript.png"},
@@ -181,6 +186,28 @@ var newPos = new THREE.Vector3();
       }
       MovingCube = NodeCubes[0];
       StaticCube = NodeCubes[NodeCubes.length-1];
+
+	// test for 2nd group of pages, showcasing a proper full 3D effect
+      for (var i = 0; i < Nodes.length; i += 1) {
+	var mysize = 1;
+	// depth based on number of revisions i.e. the more revision, the deeper the shape
+	var mygeometry = new THREE.CubeGeometry( mysize, mysize, mysize * Nodes[i].Rev/100 )
+	var mycubecolor = ( Math.random() * 0xffffff );
+	for ( var j = 0; j < mygeometry.faces.length; j ++ ) {
+	    mygeometry.faces[ j ].color.setHex( mycubecolor );
+	}
+	mytexture = THREE.ImageUtils.loadTexture(TexturesURL + Nodes[i].Texture);
+	var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+	tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+	tmpcube.position.set(-1, 1, -1.2);
+	tmpcube.position.x += i;
+	tmpcube.rotateX(0.5);
+	// position nodes with force layout on the plane with differential positioning
+	console.log("https://vida.io/documents/HRt7haiqq8Sbfh4nn");
+	// align all nodes on a line
+	
+        scene.add( tmpcube );
+      }
 
 MovableCube = NodeCubes[1];
 MovableCube.ongazelong = function(){
