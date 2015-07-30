@@ -224,6 +224,13 @@ MovableCube.ongazeout = function(){
 
 reticle.add_collider(MovableCube);
 
+var mygeometry = new THREE.CubeGeometry( 1, 1, 0.1 );
+mytexture = THREE.ImageUtils.loadTexture('textures/motivation_poster.jpg');
+var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+tmpcube.position.set(0, 0, 2);
+scene.add(tmpcube);
+
 // Position cube mesh
 
 oldcube.position.y = -1;
