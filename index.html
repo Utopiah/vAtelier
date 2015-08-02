@@ -68,7 +68,6 @@ window.onload = function() {
   gui.add(text, 'recul', -1, 1);
 };
 
-
 //Setup three.js WebGL renderer
 var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -216,6 +215,39 @@ var newPos = new THREE.Vector3();
 	// align all nodes on a line
 	
         scene.add( tmpcube );
+
+
+var xmlhttp = new XMLHttpRequest();
+var url = "./Wiki.json";
+
+xmlhttp.onreadystatechange = function() {
+    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        var myArr = JSON.parse(xmlhttp.responseText);
+        myFunction(myArr);
+    }
+}
+xmlhttp.open("GET", url, true);
+xmlhttp.send();
+
+function myFunction(arr) {
+    for(i = 0; i < 4; i++) {
+	console.log(arr.Nodes[i].Id);
+	console.log(arr.Nodes[i].Rev);
+	var mysize = 1;
+	// depth based on number of revisions i.e. the more revision, the deeper the shape
+	var mygeometry = new THREE.CubeGeometry( mysize, mysize, mysize * arr.Nodes[i].Rev/100 )
+	var mycubecolor = ( Math.random() * 0xffffff );
+	for ( var j = 0; j < mygeometry.faces.length; j ++ ) {
+	    mygeometry.faces[ j ].color.setHex( mycubecolor );
+	}
+	mytexture = THREE.ImageUtils.loadTexture("./MyRenderedPages/fabien.benetou.fr_" + arr.Nodes[i].Id.replace(".","_") + ".png");
+	var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+	tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+	tmpcube.position.set(-1, -1, -1.5);
+	tmpcube.position.x += i;
+        scene.add( tmpcube );
+    }
+}
 
 MovableCube = NodeCubes[1];
 MovableCube.ongazelong = function(){
