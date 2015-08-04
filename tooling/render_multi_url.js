@@ -15,7 +15,8 @@ RenderUrlsToFile = function(urls, callbackPerUrl, callbackFinal) {
 	page = null;
 
 	getFilename = function(url) {
-		return url.replace(/\//g,'_')+  ".png";  //<--
+		var filename = url.replace(/\?action=print/g,'');  //<--
+		return filename.replace(/\//g,'_')+  ".png";  //<--
 	};
 	next = function(status, url, file) {
 		page.close();

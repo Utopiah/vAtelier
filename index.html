@@ -230,22 +230,34 @@ xmlhttp.open("GET", url, true);
 xmlhttp.send();
 
 function myFunction(arr) {
-    for(i = 0; i < 4; i++) {
+	var pagesdisplayed = 0; 
+	var i = 0;
+	console.log(pagesdisplayed);
+	console.log(arr.length);
+    while(pagesdisplayed < 4 && i < arr.Nodes.length) {
+	i++;
 	console.log(arr.Nodes[i].Id);
 	console.log(arr.Nodes[i].Rev);
-	var mysize = 1;
-	// depth based on number of revisions i.e. the more revision, the deeper the shape
-	var mygeometry = new THREE.CubeGeometry( mysize, mysize, mysize * arr.Nodes[i].Rev/100 )
-	var mycubecolor = ( Math.random() * 0xffffff );
-	for ( var j = 0; j < mygeometry.faces.length; j ++ ) {
-	    mygeometry.faces[ j ].color.setHex( mycubecolor );
+	if (arr.Nodes[i].Id.indexOf("RecentChanges") == -1){
+		var mysize = 1;
+		// depth based on number of revisions i.e. the more revision, the deeper the shape
+		var mygeometry = new THREE.CubeGeometry( mysize, mysize, mysize * arr.Nodes[i].Rev/100 )
+			var mycubecolor = ( Math.random() * 0xffffff );
+		for ( var j = 0; j < mygeometry.faces.length; j ++ ) {
+			mygeometry.faces[ j ].color.setHex( mycubecolor );
+		}
+		mytexture = THREE.ImageUtils.loadTexture("./MyRenderedPages/fabien.benetou.fr_" + arr.Nodes[i].Id.replace(".","_") + "?action=print.png");
+		// should render pages in Print mode ( ?action=print )
+		// seems the web server does not want to offer it
+		mytexture = THREE.ImageUtils.loadTexture("./MyRenderedPages/fabien.benetou.fr_" + arr.Nodes[i].Id.replace(".","_") + ".png");
+		// RecentChanges page do not get generated, none of them, as they are not part of the normal pages
+		var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+		tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+		tmpcube.position.set(-1, -1, -1.5);
+		tmpcube.position.x += pagesdisplayed;
+		scene.add( tmpcube );
+		pagesdisplayed++;
 	}
-	mytexture = THREE.ImageUtils.loadTexture("./MyRenderedPages/fabien.benetou.fr_" + arr.Nodes[i].Id.replace(".","_") + ".png");
-	var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
-	tmpcube = new THREE.Mesh( mygeometry, mymaterial );
-	tmpcube.position.set(-1, -1, -1.5);
-	tmpcube.position.x += i;
-        scene.add( tmpcube );
     }
 }
 
