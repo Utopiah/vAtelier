@@ -261,6 +261,7 @@ function myFunction(arr) {
     }
 }
 
+// TODO clarify why using cube from the function does not work
 MovableCube = NodeCubes[1];
 MovableCube.ongazelong = function(){
 
@@ -285,6 +286,34 @@ scene.add(tmpcube);
 
 // Position cube mesh
 
+// TODO flatten then link on click to https://github.com/Utopiah/CC2015Goal3Month1 2 and 3 as own rooms
+var mygeometry = new THREE.CubeGeometry( 1, 1.5, 0.1 );
+mytexture = THREE.ImageUtils.loadTexture('textures/CC2015Goal3Month1.png');
+var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+tmpcube.position.set(-3, -2, -1);
+tmpcube.rotateY(1);
+scene.add(tmpcube);
+
+// TODO flatten then link on click to https://github.com/Utopiah/CC2015Goal3Month1 2 and 3 as own rooms
+var mygeometry = new THREE.CubeGeometry( 1, 1.5, 0.1 );
+mytexture = THREE.ImageUtils.loadTexture('textures/CC2015Goal3Month2.png');
+var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+tmpcube.position.set(-3, 0, -1);
+tmpcube.rotateY(1);
+scene.add(tmpcube);
+
+// TODO flatten then link on click to https://github.com/Utopiah/CC2015Goal3Month1 2 and 3 as own rooms
+var mygeometry = new THREE.CubeGeometry( 1, 1.5, 0.1 );
+mytexture = THREE.ImageUtils.loadTexture('textures/CC2015Goal3Month3.png');
+var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+tmpcube.position.set(-3, 2, -1);
+tmpcube.rotateY(1);
+scene.add(tmpcube);
+
+// TODO remove old cube
 oldcube.position.y = -1;
 cube.position.y = -1;
 oldcube.position.z = -1;
