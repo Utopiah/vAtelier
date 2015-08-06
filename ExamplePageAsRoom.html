@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>PIM in VR</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<style>
+body {
+  background-color: #000;
+  color: #fff;
+  margin: 0px;
+  padding: 0;
+  overflow: hidden;
+}
+</style>
+</head>
+
+<body>
+
+</body>
+
+<script>
+// Set this to true to enable the polyfill and split screen rendering
+// even if the device is incompatible with Cardboard (eg. desktop).
+// NOTE: This should never be checked in as true.
+CARDBOARD_DEBUG = false;
+</script>
+
+<script src="./js/three.js"></script>
+<!--
+VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object.
+-->
+<script src="./js/VRControls.js"></script>
+<!--
+VREffect.js handles stereo camera setup and rendering.
+-->
+<script src="./js/VREffect.js"></script>
+<!--
+A polyfill for WebVR using the Device{Motion,Orientation}Event API.
+-->
+<script src="./js/webvr-polyfill.js"></script>
+<!--
+Helps enter and exit VR mode, provides best practices while in VR.
+-->
+<script src="./js/webvr-manager.js"></script>
+
+<script>
+
+//Setup three.js WebGL renderer
+var renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+
+// Append the canvas element created by the renderer to document body element.
+document.body.appendChild(renderer.domElement);
+
+// Create a three.js scene.
+var scene = new THREE.Scene();
+
+// Create a three.js camera.
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.3, 10000);
+
+scene.add(camera);
+
+// Apply VR headset positional data to camera.
+var controls = new THREE.VRControls(camera);
+
+// Apply VR stereo rendering to renderer.
+var effect = new THREE.VREffect(renderer);
+effect.setSize(window.innerWidth, window.innerHeight);
+
+// Create a VR manager helper to enter and exit VR mode.
+var manager = new WebVRManager(renderer, effect, {hideButton: false});
+
+// Create 3D objects.
+var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+var material = new THREE.MeshNormalMaterial();
+var cube = new THREE.Mesh(geometry, material);
+
+    // PIM related data
+    var PIMurl = "http://fabien.benetou.fr/";
+    var PIMurlTrailing = "?action=print";
+    var TexturesURL = "ImagesFromPIM/";
+
+    // load a sub-graph of nodes with threshold of 10 nodes
+    // if no differential positioning set default value of 0
+
+    BASEURL = "http://fabien.benetou.fr/";
+    BASELOCALPATH = "/home/web/benetou.fr/fabien/wiki.d/";
+
+var mygeometry = new THREE.CubeGeometry( 1, 1, 0.1 );
+mytexture = THREE.ImageUtils.loadTexture('textures/motivation_poster.jpg');
+var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+tmpcube.position.set(0, 0, 2);
+scene.add(tmpcube);
+
+// Position cube mesh
+
+// TODO flatten then link on click to https://github.com/Utopiah/CC2015Goal3Month1 2 and 3 as own rooms
+var mygeometry = new THREE.CubeGeometry( 1.5, 1.5, 0.1 );
+//var mygeometry = new THREE.SphereGeometry(75, 16, 8, 0, 2, 1, 1.2);
+mytexture = THREE.ImageUtils.loadTexture('textures/CC2015Goal3Month1.png');
+var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+//var mymaterial = new THREE.MeshBasicMaterial({wireframe:true});
+tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+tmpcube.position.set(0, 0, -1.3);
+//tmpcube.scale.set(0.01,0.01,0.01);
+//tmpcube.position.set(0, 0, -1);
+//tmpcube.rotateY(1.5);
+scene.add(tmpcube);
+
+// TODO flatten then link on click to https://github.com/Utopiah/CC2015Goal3Month1 2 and 3 as own rooms
+var mygeometry = new THREE.CubeGeometry( 1, 1.5, 0.1 );
+mytexture = THREE.ImageUtils.loadTexture('textures/CC2015Goal3Month2.png');
+var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+tmpcube.position.set(-3, 0, -1);
+tmpcube.rotateY(1);
+scene.add(tmpcube);
+
+// TODO flatten then link on click to https://github.com/Utopiah/CC2015Goal3Month1 2 and 3 as own rooms
+var mygeometry = new THREE.CubeGeometry( 1, 1.5, 0.1 );
+mytexture = THREE.ImageUtils.loadTexture('textures/CC2015Goal3Month3.png');
+var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+tmpcube.position.set(-3, 2, -1);
+tmpcube.rotateY(1);
+scene.add(tmpcube);
+
+// TODO remove old cube
+cube.position.y = -1;
+cube.position.z = -1;
+
+// Add cube mesh to your three.js scene
+//scene.add(oldcube);
+scene.add(cube);
+
+// Also add a repeating grid as a skybox.
+var boxWidth = 10;
+var texture = THREE.ImageUtils.loadTexture(
+        'textures/box.png'
+);
+texture.wrapS = THREE.RepeatWrapping;
+texture.wrapT = THREE.RepeatWrapping;
+texture.repeat.set(boxWidth, boxWidth);
+
+var geometry = new THREE.BoxGeometry(boxWidth, boxWidth, boxWidth);
+var material = new THREE.MeshBasicMaterial({
+  map: texture,
+  color: 0x333333,
+  side: THREE.BackSide
+});
+
+var skybox = new THREE.Mesh(geometry, material);
+scene.add(skybox);
+
+// Request animation frame loop function
+function animate() {
+  // Apply rotation to cube mesh
+  cube.rotation.y += 0.01;
+
+  // Update VR headset position and apply to camera.
+  controls.update();
+
+  // Render the scene through the manager.
+  manager.render(scene, camera);
+
+  requestAnimationFrame(animate);
+  
+}
+
+// Kick off animation loop
+animate();
+
+// Reset the position sensor when 'z' pressed.
+function onKey(event) {
+  if (event.keyCode == 13) { // enter
+
+	window.open ('index.html','_self',false)
+  }
+};
+
+window.addEventListener('keydown', onKey, true);
+
+// Handle window resizes
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  effect.setSize( window.innerWidth, window.innerHeight );
+}
+
+window.addEventListener('resize', onWindowResize, false);
+
+</script>
+
+</html>
