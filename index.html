@@ -385,6 +385,10 @@ function onKey(event) {
   }
 };
 
+function onClick(event) {
+	  window.open ('ExamplePageAsRoom.html','_self',false);
+};
+window.addEventListener('dblclick', onClick, true);
 window.addEventListener('keydown', onKey, true);
 
 // Handle window resizes
