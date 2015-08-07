@@ -48,7 +48,6 @@ var manager = new WebVRManager(renderer, effect, {
 var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
 var material = new THREE.MeshNormalMaterial();
 var cube = new THREE.Mesh(geometry, material);
-var oldcube = new THREE.Mesh(geometry, material);
 
 var picked = false;
 var previous_dist = camera.position.distanceTo(cube);
@@ -301,14 +300,10 @@ tmpcube.position.set(-3, 2, -1);
 tmpcube.rotateY(1);
 scene.add(tmpcube);
 
-// TODO remove old cube
-oldcube.position.y = -1;
 cube.position.y = -1;
-oldcube.position.z = -1;
 cube.position.z = -1;
 
 // Add cube mesh to your three.js scene
-//scene.add(oldcube);
 scene.add(cube);
 
 // Also add a repeating grid as a skybox.
