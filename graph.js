@@ -10,25 +10,6 @@ document.body.appendChild(renderer.domElement);
 // Create a three.js scene.
 var scene = new THREE.Scene();
 
-//------------------- GRPHI bit
-
-/*
-var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-var cubeA = new THREE.Mesh( geometry, material );
-scene.add( cubeA );
-var material = new THREE.MeshBasicMaterial( {color: 0x0000ff} );
-var cubeB = new THREE.Mesh( geometry, material );
-scene.add( cubeB );
-cubeA.position.set(2, 1, -3);
-cubeB.position.set(-2, 1, -2);
-var geometry= new THREE.Geometry();
-geometry.vertices.push( cubeA.position, cubeB.position);
-var material = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 1});
-var line = new THREE.Line(geometry);
-scene.add(line);
-*/
-
 // Create a three.js camera.
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.3, 10000);
 
@@ -62,7 +43,7 @@ var lookAtVector = new THREE.Vector3(0, 0, -1);
 var newPos = new THREE.Vector3();
 
 
-arr=MyWiki;
+arr=MyWiki; //imported before as .js file
 var pagesdisplayed = 0;
 var i = 100;
 var maxpages = 16;
@@ -97,6 +78,8 @@ while (pagesdisplayed < maxpages && i < arr.Nodes.length) {
 		tmpcube.position.set(-4.5, 4.5, -2.5);
 		tmpcube.position.x += 1.2*Math.round(pagesdisplayed%pagesperline);
 		tmpcube.position.y -= pagesize + 1.2*Math.round(pagesdisplayed/pagesperline);
+		tmpcube.position.z -= 3+4*arr.Nodes[i].ChangeTime/1004552460;
+		console.log("CT:",arr.Nodes[i].ChangeTime);
 		tmpcube.rotateX(Math.PI/8/currentline);
 		scene.add(tmpcube);
 		pagesdisplayed++;
@@ -165,15 +148,33 @@ tmpcube = new THREE.Mesh(mygeometry, mymaterial);
 tmpcube.position.set(0, 0, 2);
 scene.add(tmpcube);
 
+
+var FizzyText = function() {
+    this.message = 'Wiki pages as a graph';
+    this.vertices = MyWiki.Vertices.length;
+    this.edges = MyWiki.Nodes.length;
+    this.instructions = 'p key to pick/drop';
+    this.boxwireframe = false;
+};
+
+
+window.onload = function() {
+    var text = new FizzyText();
+    var gui = new dat.GUI();
+    gui.add(text, 'message');
+    gui.add(text, 'vertices');
+    gui.add(text, 'edges');
+    gui.add(text, 'instructions');
+    gui.add(text, 'boxwireframe');
+};
+
 // Position cube mesh
 
 // Add cube mesh to your three.js scene
 
 // Also add a repeating grid as a skybox.
 var boxWidth = 10;
-var texture = THREE.ImageUtils.loadTexture(
-    'textures/box.png'
-);
+var texture = THREE.ImageUtils.loadTexture( 'textures/box.png');
 texture.wrapS = THREE.RepeatWrapping;
 texture.wrapT = THREE.RepeatWrapping;
 texture.repeat.set(boxWidth, boxWidth);
@@ -182,7 +183,9 @@ var geometry = new THREE.BoxGeometry(boxWidth, boxWidth, boxWidth);
 var material = new THREE.MeshBasicMaterial({
     map: texture,
     color: 0x333333,
-    side: THREE.BackSide
+    side: THREE.BackSide,
+ transparent: true, opacity: 0.7
+	//wireframe: FizzyText.wireframe
 });
 
 var skybox = new THREE.Mesh(geometry, material);
@@ -247,21 +250,3 @@ function onWindowResize() {
 }
 
 window.addEventListener('resize', onWindowResize, false);
-
-var FizzyText = function() {
-    this.message = 'Wiki pages as a graph';
-    this.vertices = MyWiki.Vertices.length;
-    this.edges = MyWiki.Nodes.length;
-    this.instructions = 'p key to pick/drop';
-};
-
-
-window.onload = function() {
-    var text = new FizzyText();
-    var gui = new dat.GUI();
-    gui.add(text, 'message');
-    gui.add(text, 'vertices');
-    gui.add(text, 'edges');
-    gui.add(text, 'instructions');
-};
-
