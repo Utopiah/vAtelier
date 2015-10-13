@@ -71,20 +71,20 @@ while (pagesdisplayed < maxpages && i < arr.Nodes.length) {
 		// RecentChanges page do not get generated, none of them, as they are not part of the normal pages
 		mytexture.minFilter = THREE.LinearFilter;
 		var mymaterial = new THREE.MeshBasicMaterial({ map: mytexture });
-		tmpcube = new THREE.Mesh(mygeometry, mymaterial);
+		currentcube = new THREE.Mesh(mygeometry, mymaterial);
 		if (pagesdisplayed%pagesperline == 0){
 			currentline++;
 		}
-		tmpcube.position.set(-4.5, 4.5, -2.5);
-		tmpcube.position.x += 1.2*Math.round(pagesdisplayed%pagesperline);
-		tmpcube.position.y -= pagesize + 1.2*Math.round(pagesdisplayed/pagesperline);
-		tmpcube.position.z -= 3+4*arr.Nodes[i].ChangeTime/1004552460;
+		currentcube.position.set(-4.5, 4.5, -2.5);
+		currentcube.position.x += 1.2*Math.round(pagesdisplayed%pagesperline);
+		currentcube.position.y -= pagesize + 1.2*Math.round(pagesdisplayed/pagesperline);
+		currentcube.position.z -= 3+4*arr.Nodes[i].ChangeTime/1004552460;
 		console.log("CT:",arr.Nodes[i].ChangeTime);
-		tmpcube.rotateX(Math.PI/8/currentline);
-		scene.add(tmpcube);
+		currentcube.rotateX(Math.PI/8/currentline);
+		scene.add(currentcube);
 		pagesdisplayed++;
 	}
-	threedisplaypages.push({id:arr.Nodes[i].Id,links:linkedPages,threed:tmpcube});
+	threedisplaypages.push({id:arr.Nodes[i].Id,links:linkedPages,threed:currentcube});
 }
 
 for (var i=0;i<10;i++){
@@ -124,7 +124,7 @@ for (var i=0; i<threedisplaypages.length;i++){
 */
 
 // TODO clarify why using cube from the function does not work
-MovableCube = tmpcube
+MovableCube = currentcube;
 MovableCube.ongazelong = function() {
 
 }
@@ -144,9 +144,9 @@ mytexture = THREE.ImageUtils.loadTexture('textures/motivation_poster.jpg');
 var mymaterial = new THREE.MeshBasicMaterial({
     map: mytexture
 });
-tmpcube = new THREE.Mesh(mygeometry, mymaterial);
-tmpcube.position.set(0, 0, 2);
-scene.add(tmpcube);
+myposter = new THREE.Mesh(mygeometry, mymaterial);
+myposter.position.set(0, 0, 2);
+scene.add(myposter);
 
 
 var FizzyText = function() {
@@ -223,11 +223,9 @@ function onKey(event) {
     if (event.keyCode == 90) { // z
         controls.resetSensor();
     }
-
     if (event.keyCode == 13) { // enter
         window.open('ExamplePageAsRoom.html', '_self', false);
     }
-
     if (event.keyCode == 80) { // p
         picked = !picked;
     }
@@ -240,12 +238,10 @@ window.addEventListener('dblclick', onClick, true);
 // does not work on mobile
 
 window.addEventListener('keydown', onKey, true);
-
 // Handle window resizes
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-
     effect.setSize(window.innerWidth, window.innerHeight);
 }
 

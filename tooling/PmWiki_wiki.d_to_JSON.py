@@ -6,6 +6,10 @@ import re
 
 MyDir = "/home/web/benetou.fr/fabien/wiki.d/"
 MyJSONfile = "../Wiki.json"
+MyJSONfile = "../MyWiki.js"
+"""
+    modified to bypass the get limitations, dirty but works
+    """
 
 MyWikiFiles = os.listdir(MyDir)
 
@@ -56,6 +60,10 @@ for myfile in MyWikiFiles:
             Nodes.append({"Id": name, "Rev": revision, "Size": size, "ChangeTime": ctime, "Time": time})
         if not targets == "":
             Vertices.append({"FROM": name, "TO": targets})
+
+        """ to update
+            pre-process the graph to directly find the linked pages FROM the current page
+            """
 
 data = {"Nodes": Nodes, "Vertices": Vertices}
 
