@@ -16,9 +16,8 @@ gui.add(text, 'message');
 gui.add(text, 'instructions');
 gui.add(text, 'vertices');
 gui.add(text, 'edges');
-gui.add(text, 'positionZposter').min(-4).max(4).step(1).onFinishChange(function(){
-    // TODO somehow doesnt update ! alert( params.positionZposter );
-    myposter.position.z += 0.5;
+gui.add(params, 'positionZposter').min(-4).max(4).step(1).onFinishChange(function(){
+    myposter.position.z = params.positionZposter;
 })
 
 //Setup three.js WebGL renderer
