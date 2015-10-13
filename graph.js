@@ -1,5 +1,5 @@
 var params = {
-	boxwireframe: false
+    positionZposter: 2
 }
 
 var FizzyText = function() {
@@ -7,7 +7,7 @@ var FizzyText = function() {
     this.instructions = 'p key to pick/drop';
     this.vertices = MyWiki.Vertices.length;
     this.edges = MyWiki.Nodes.length;
-    this.boxwireframe = params.boxwireframe;
+    this.positionZposter = params.positionZposter;
 };
 
 var text = new FizzyText();
@@ -16,9 +16,9 @@ gui.add(text, 'message');
 gui.add(text, 'instructions');
 gui.add(text, 'vertices');
 gui.add(text, 'edges');
-gui.add(text, 'boxwireframe').onFinishChange(function(){
-    myposter.position.set(0, -2, -4);
-    // refresh based on the new value of params.interation
+gui.add(text, 'positionZposter').min(-4).max(4).step(1).onFinishChange(function(){
+    // TODO somehow doesnt update ! alert( params.positionZposter );
+    myposter.position.z += 0.5;
 })
 
 //Setup three.js WebGL renderer
@@ -190,8 +190,7 @@ var material = new THREE.MeshBasicMaterial({
     color: 0x333333,
     side: THREE.BackSide,
     transparent: true,
-    opacity: 0.7,
-    wireframe: FizzyText.wireframe
+    opacity: 0.7
 });
 
 var skybox = new THREE.Mesh(geometry, material);
@@ -217,12 +216,7 @@ function animate() {
         newPos.copy(lookAtVector);
         newPos.add(camera.position);
         MovableCube.position.copy(newPos);
-    	//skybox.material.wireframe = true;
     }
-
-    //skybox.material.wireframe = FizzyText.boxwireframe;
-    //console.log('skybox.material.wireframe: ', skybox.material.wireframe);
-    //console.log('FizzyText.wireframe: ',FizzyText.wireframe);
 }
 
 // Kick off animation loop
@@ -255,4 +249,4 @@ function onWindowResize() {
     effect.setSize(window.innerWidth, window.innerHeight);
 }
 
-window.addEventListener('resize', onWindowResize, false);
+//window.addEventListener('resize', onWindowResize, false);
