@@ -1,3 +1,26 @@
+var params = {
+	boxwireframe: false
+}
+
+var FizzyText = function() {
+    this.message = 'Wiki pages as a graph';
+    this.instructions = 'p key to pick/drop';
+    this.vertices = MyWiki.Vertices.length;
+    this.edges = MyWiki.Nodes.length;
+    this.boxwireframe = params.boxwireframe;
+};
+
+var text = new FizzyText();
+var gui = new dat.GUI();
+gui.add(text, 'message');
+gui.add(text, 'instructions');
+gui.add(text, 'vertices');
+gui.add(text, 'edges');
+gui.add(text, 'boxwireframe').onFinishChange(function(){
+    myposter.position.set(0, -2, -4);
+    // refresh based on the new value of params.interation
+})
+
 //Setup three.js WebGL renderer
 var renderer = new THREE.WebGLRenderer({
     antialias: true
@@ -42,7 +65,6 @@ var lookAtVector = new THREE.Vector3(0, 0, -1);
 
 var newPos = new THREE.Vector3();
 
-
 arr=MyWiki; //imported before as .js file
 var pagesdisplayed = 0;
 var i = 100;
@@ -75,11 +97,17 @@ while (pagesdisplayed < maxpages && i < arr.Nodes.length) {
 		if (pagesdisplayed%pagesperline == 0){
 			currentline++;
 		}
+		// center the current cube
 		currentcube.position.set(-4.5, 4.5, -2.5);
+		// position horiztontally
 		currentcube.position.x += 1.2*Math.round(pagesdisplayed%pagesperline);
+		// position vertically
 		currentcube.position.y -= pagesize + 1.2*Math.round(pagesdisplayed/pagesperline);
+		// position in depth
 		currentcube.position.z -= 3+4*arr.Nodes[i].ChangeTime/1004552460;
+
 		console.log("CT:",arr.Nodes[i].ChangeTime);
+		// rotate based on vertical position
 		currentcube.rotateX(Math.PI/8/currentline);
 		scene.add(currentcube);
 		pagesdisplayed++;
@@ -87,6 +115,7 @@ while (pagesdisplayed < maxpages && i < arr.Nodes.length) {
 	threedisplaypages.push({id:arr.Nodes[i].Id,links:linkedPages,threed:currentcube});
 }
 
+// cheating, random connections
 for (var i=0;i<10;i++){
 	var geometry= new THREE.Geometry();
 	geometry.vertices.push(
@@ -99,6 +128,7 @@ for (var i=0;i<10;i++){
 }
 
 /*
+// TODO horrible solution, must be moved in the Python preprocessed part hence getting arr=MyWiki directly useful
 //go through all the pages displayed
 for (var i=0; i<threedisplaypages.length;i++){
 	//go through all the links of the current page
@@ -123,7 +153,6 @@ for (var i=0; i<threedisplaypages.length;i++){
 }
 */
 
-// TODO clarify why using cube from the function does not work
 MovableCube = currentcube;
 MovableCube.ongazelong = function() {
 
@@ -148,30 +177,6 @@ myposter = new THREE.Mesh(mygeometry, mymaterial);
 myposter.position.set(0, 0, 2);
 scene.add(myposter);
 
-
-var FizzyText = function() {
-    this.message = 'Wiki pages as a graph';
-    this.vertices = MyWiki.Vertices.length;
-    this.edges = MyWiki.Nodes.length;
-    this.instructions = 'p key to pick/drop';
-    this.boxwireframe = false;
-};
-
-
-window.onload = function() {
-    var text = new FizzyText();
-    var gui = new dat.GUI();
-    gui.add(text, 'message');
-    gui.add(text, 'vertices');
-    gui.add(text, 'edges');
-    gui.add(text, 'instructions');
-    gui.add(text, 'boxwireframe');
-};
-
-// Position cube mesh
-
-// Add cube mesh to your three.js scene
-
 // Also add a repeating grid as a skybox.
 var boxWidth = 10;
 var texture = THREE.ImageUtils.loadTexture( 'textures/box.png');
@@ -184,8 +189,9 @@ var material = new THREE.MeshBasicMaterial({
     map: texture,
     color: 0x333333,
     side: THREE.BackSide,
- transparent: true, opacity: 0.7
-	//wireframe: FizzyText.wireframe
+    transparent: true,
+    opacity: 0.7,
+    wireframe: FizzyText.wireframe
 });
 
 var skybox = new THREE.Mesh(geometry, material);
@@ -210,9 +216,13 @@ function animate() {
         lookAtVector.applyQuaternion(camera.quaternion);
         newPos.copy(lookAtVector);
         newPos.add(camera.position);
-
         MovableCube.position.copy(newPos);
+    	//skybox.material.wireframe = true;
     }
+
+    //skybox.material.wireframe = FizzyText.boxwireframe;
+    //console.log('skybox.material.wireframe: ', skybox.material.wireframe);
+    //console.log('FizzyText.wireframe: ',FizzyText.wireframe);
 }
 
 // Kick off animation loop
