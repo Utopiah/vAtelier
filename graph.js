@@ -16,8 +16,11 @@ gui.add(text, 'message');
 gui.add(text, 'instructions');
 gui.add(text, 'vertices');
 gui.add(text, 'edges');
-gui.add(params, 'positionZposter').min(-4).max(4).step(1).onFinishChange(function(){
-    myposter.position.z = params.positionZposter;
+gui.add(params, 'positionZposter').min(-9).max(-1).step(0.5).onFinishChange(function(){
+    //currentcube.position.z = params.positionZposter;
+    for (var i=0; i<threedisplaypages.length;i++){
+	threedisplaypages[i].threed.position.z = params.positionZposter;
+	}
 })
 
 //Setup three.js WebGL renderer
@@ -102,8 +105,10 @@ while (pagesdisplayed < maxpages && i < arr.Nodes.length) {
 		currentcube.position.x += 1.2*Math.round(pagesdisplayed%pagesperline);
 		// position vertically
 		currentcube.position.y -= pagesize + 1.2*Math.round(pagesdisplayed/pagesperline);
+		// take current time...
+		var milliseconds = (new Date).getTime();
 		// position in depth
-		currentcube.position.z -= 3+4*arr.Nodes[i].ChangeTime/1004552460;
+		currentcube.position.z -= 2+4*arr.Nodes[i].ChangeTime/milliseconds;
 
 		console.log("CT:",arr.Nodes[i].ChangeTime);
 		// rotate based on vertical position
