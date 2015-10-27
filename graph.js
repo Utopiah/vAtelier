@@ -1,5 +1,5 @@
 var params = {
-    positionZposter: 2
+    positionZpages: -2
 }
 
 var FizzyText = function() {
@@ -7,7 +7,7 @@ var FizzyText = function() {
     this.instructions = 'p key to pick/drop';
     this.vertices = MyWiki.Vertices.length;
     this.edges = MyWiki.Nodes.length;
-    this.positionZposter = params.positionZposter;
+    this.positionZpages = params.positionZpages;
 };
 
 var text = new FizzyText();
@@ -16,10 +16,10 @@ gui.add(text, 'message');
 gui.add(text, 'instructions');
 gui.add(text, 'vertices');
 gui.add(text, 'edges');
-gui.add(params, 'positionZposter').min(-9).max(-1).step(0.5).onFinishChange(function(){
-    //currentcube.position.z = params.positionZposter;
+gui.add(params, 'positionZpages').min(-9).max(-1).step(0.5).onFinishChange(function(){
+    //currentcube.position.z = params.positionZpages;
     for (var i=0; i<threedisplaypages.length;i++){
-	threedisplaypages[i].threed.position.z = params.positionZposter;
+	threedisplaypages[i].threed.position.z = params.positionZpages;
 	}
 })
 
@@ -59,12 +59,10 @@ var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
 var material = new THREE.MeshNormalMaterial();
 var cube = new THREE.Mesh(geometry, material);
 
+// object picking
 var picked = false;
-var previous_dist = camera.position.distanceTo(cube);
 var gazed = false;
-
 var lookAtVector = new THREE.Vector3(0, 0, -1);
-
 var newPos = new THREE.Vector3();
 
 arr=MyWiki; //imported before as .js file
@@ -100,7 +98,7 @@ while (pagesdisplayed < maxpages && i < arr.Nodes.length) {
 			currentline++;
 		}
 		// center the current cube
-		currentcube.position.set(-4.5, 4.5, -2.5);
+		currentcube.position.set(-4.5, 3.5, -2.5);
 		// position horiztontally
 		currentcube.position.x += 1.2*Math.round(pagesdisplayed%pagesperline);
 		// position vertically
@@ -157,20 +155,33 @@ for (var i=0; i<threedisplaypages.length;i++){
 }
 */
 
-MovableCube = currentcube;
-MovableCube.ongazelong = function() {
-
+currentlygazedcube = false;
+pickedcube = false;
+var blocks = new Array();
+for (var i=0; i<threedisplaypages.length;i++){
+	blocks.push(threedisplaypages[i]);
+	lastblock = blocks.length-1;
+	currentid = blocks[lastblock].id;
+	console.log(currentid,"id in setup");
+	blocks[lastblock].threed.ongazelong = function() {
+		currentlygazedcube = blocks[lastblock].id;
+		console.log(currentid,"id in function");
+	}
+	blocks[lastblock].threed.ongazeover = function() {
+		if (!picked){
+			pickedcube = blocks[lastblock].threed;
+			picked = true;
+			// always pick the last displayed block rather than the current one
+		}
+	}
+	blocks[lastblock].threed.ongazeout = function() {
+		pickedcube = false;
+		picked = false;
+		currentlygazedcube = false;
+	}
+	reticle.add_collider(blocks[lastblock].threed);
+	// does add all the different cube to the reticle correctly
 }
-
-MovableCube.ongazeover = function() {
-    gazed = true;
-}
-
-MovableCube.ongazeout = function() {
-    gazed = false;
-}
-
-reticle.add_collider(MovableCube);
 
 var mygeometry = new THREE.CubeGeometry(1, 1, 0.1);
 mytexture = THREE.ImageUtils.loadTexture('textures/motivation_poster.jpg');
@@ -219,22 +230,24 @@ function animate() {
         lookAtVector.applyQuaternion(camera.quaternion);
         newPos.copy(lookAtVector);
         newPos.add(camera.position);
-        MovableCube.position.copy(newPos);
+        pickedcube.position.copy(newPos);
     }
 }
 
 // Kick off animation loop
 animate();
 
-// Reset the position sensor when 'z' pressed.
 function onKey(event) {
-    if (event.keyCode == 90) { // z
+    if (event.keyCode == 90) { // z to reset the sensors
         controls.resetSensor();
+	console.log("sensor resetted");
     }
-    if (event.keyCode == 13) { // enter
-        window.open('ExamplePageAsRoom.html', '_self', false);
+    if (event.keyCode == 13) { // enter to enter a room
+	// make it gaze specific
+	if (currentlygazedcube) { console.log("should window.open on this page: ", currentlygazedcube); }
+        //window.open('ExamplePageAsRoom.html', '_self', false);
     }
-    if (event.keyCode == 80) { // p
+    if (event.keyCode == 80) { // p to pick then later release an object
         picked = !picked;
     }
 };
