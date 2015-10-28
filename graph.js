@@ -157,31 +157,24 @@ for (var i=0; i<threedisplaypages.length;i++){
 
 currentlygazedcube = false;
 pickedcube = false;
-var blocks = new Array();
-for (var i=0; i<threedisplaypages.length;i++){
-	blocks.push(threedisplaypages[i]);
-	lastblock = blocks.length-1;
-	currentid = blocks[lastblock].id;
-	console.log(currentid,"id in setup");
-	blocks[lastblock].threed.ongazelong = function() {
-		currentlygazedcube = blocks[lastblock].id;
-		console.log(currentid,"id in function");
+threedisplaypages.forEach(function (item, index, array){
+	item.threed.ongazelong = function() {
+		currentlygazedcube = item.id;
+		console.log(currentlygazedcube);
 	}
-	blocks[lastblock].threed.ongazeover = function() {
+	item.threed.ongazeover = function() {
 		if (!picked){
-			pickedcube = blocks[lastblock].threed;
+			pickedcube = item.threed;
 			picked = true;
-			// always pick the last displayed block rather than the current one
 		}
 	}
-	blocks[lastblock].threed.ongazeout = function() {
+	item.threed.ongazeout = function() {
 		pickedcube = false;
 		picked = false;
 		currentlygazedcube = false;
 	}
-	reticle.add_collider(blocks[lastblock].threed);
-	// does add all the different cube to the reticle correctly
-}
+	reticle.add_collider(item.threed);
+});
 
 var mygeometry = new THREE.CubeGeometry(1, 1, 0.1);
 mytexture = THREE.ImageUtils.loadTexture('textures/motivation_poster.jpg');
