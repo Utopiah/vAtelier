@@ -237,8 +237,10 @@ function onKey(event) {
     }
     if (event.keyCode == 13) { // enter to enter a room
 	// make it gaze specific
-	if (currentlygazedcube) { console.log("should window.open on this page: ", currentlygazedcube); }
-        //window.open('ExamplePageAsRoom.html', '_self', false);
+	if (currentlygazedcube) {
+		console.log("should window.open on this page: ", currentlygazedcube);
+		window.open('PageAsRoom.html?PIMPage='+currentlygazedcube, '_self', false);
+	}
     }
     if (event.keyCode == 80) { // p to pick then later release an object
         picked = !picked;
