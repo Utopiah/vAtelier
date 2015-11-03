@@ -1,3 +1,5 @@
+var mydebug = true;
+
 var params = {
     positionZpages: -2
 }
@@ -74,23 +76,24 @@ var pagesize = 1;
 var threedisplaypages = new Array();
 var currentline =  0;
 while (pagesdisplayed < maxpages && i < arr.Nodes.length) {
-	console.log("pages displayed:", pagesdisplayed+1);
+	if (mydebug) console.log("pages displayed:", pagesdisplayed+1);
 	i++;
-	console.log("Current node ID:", arr.Nodes[i].Id);
-	console.log("Current node revisions:", arr.Nodes[i].Rev);
-	//console.log("Current node vertices:", arr.Vertices[i]);
+	if (mydebug) console.log("Current node ID:", arr.Nodes[i].Id);
+	if (mydebug) console.log("Current node revisions:", arr.Nodes[i].Rev);
+	//if (mydebug) console.log("Current node vertices:", arr.Vertices[i]);
 	var linkedPages = new Array();
 	for(var j= 0; j < arr.Vertices.length; j++)
 	{
 		if (arr.Vertices[j].FROM == arr.Nodes[i].Id)
 			linkedPages = arr.Vertices[j].TO;
 	}
-	console.log("Found linked pages: ",linkedPages);
-	if (arr.Nodes[i].Id.indexOf("RecentChanges") == -1) {
+	if (mydebug) console.log("Found linked pages: ",linkedPages);
+	// RecentChanges page do not get generated, none of them, as they are not part of the normal pages
+	if ((arr.Nodes[i].Id.indexOf("RecentChanges") == -1) && (arr.Nodes[i].Id.indexOf("PmWiki.") == -1)) {
 		// depth based on number of revisions i.e. the more revision, the deeper the shape
 		var mygeometry = new THREE.CubeGeometry(pagesize, pagesize, pagesize * arr.Nodes[i].Rev / 100)
 		mytexture = THREE.ImageUtils.loadTexture("./MyRenderedPages/fabien.benetou.fr_" + arr.Nodes[i].Id.replace(".", "_") + ".png");
-		// RecentChanges page do not get generated, none of them, as they are not part of the normal pages
+		// should manage onError texture loading, requires closures though
 		mytexture.minFilter = THREE.LinearFilter;
 		var mymaterial = new THREE.MeshBasicMaterial({ map: mytexture });
 		currentcube = new THREE.Mesh(mygeometry, mymaterial);
@@ -108,7 +111,7 @@ while (pagesdisplayed < maxpages && i < arr.Nodes.length) {
 		// position in depth
 		currentcube.position.z -= 2+4*arr.Nodes[i].ChangeTime/milliseconds;
 
-		console.log("CT:",arr.Nodes[i].ChangeTime);
+		if (mydebug) console.log("CT:",arr.Nodes[i].ChangeTime);
 		// rotate based on vertical position
 		currentcube.rotateX(Math.PI/8/currentline);
 		scene.add(currentcube);
@@ -160,7 +163,7 @@ pickedcube = false;
 threedisplaypages.forEach(function (item, index, array){
 	item.threed.ongazelong = function() {
 		currentlygazedcube = item.id;
-		console.log(currentlygazedcube);
+		if (mydebug) console.log(currentlygazedcube);
 	}
 	item.threed.ongazeover = function() {
 		if (!picked){
@@ -233,12 +236,12 @@ animate();
 function onKey(event) {
     if (event.keyCode == 90) { // z to reset the sensors
         controls.resetSensor();
-	console.log("sensor resetted");
+	if (mydebug) console.log("sensor resetted");
     }
     if (event.keyCode == 13) { // enter to enter a room
 	// make it gaze specific
 	if (currentlygazedcube) {
-		console.log("should window.open on this page: ", currentlygazedcube);
+		if (mydebug) console.log("should window.open on this page: ", currentlygazedcube);
 		window.open('PageAsRoom.html?PIMPage='+currentlygazedcube, '_self', false);
 	}
     }
