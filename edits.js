@@ -138,11 +138,19 @@ function onKey(event) {
     }
 };
 
+function onDblClick(event) {
+	if (mydebug) console.log("stop animation");
+        tweens[0].start();
+};
 function onClick(event) {
 	if (mydebug) console.log("start animation");
+        tweens[0].start();
 };
 
-window.addEventListener('dblclick', onClick, true);
+window.addEventListener('touchstart', onClick, true);
+window.addEventListener('dblclick', onDblClick, true);
+window.addEventListener('onclick', onClick, true);
+window.addEventListener('click', onClick, true);
 // does not work on mobile
 
 window.addEventListener('keydown', onKey, true);
