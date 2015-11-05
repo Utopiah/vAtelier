@@ -50,21 +50,20 @@ var edits = [
  125, 399, 135, 303
 ];
 
-var cameraPositions = new Array();
+var cameraPositionsV3 = new Array();
 // TODO smoother movement
 
-var lastedit = new THREE.Vector3;
 var i=0;
 edits.forEach( function(item, index, array){
 	var mygeometry = new THREE.CubeGeometry(0.1, 0.1*item/100, 0.1);
 	var mymaterial = new THREE.MeshBasicMaterial({});
 	var editsize = new THREE.Mesh(mygeometry, mymaterial);
 	editsize.material.color.setRGB( Math.random(), Math.random(), Math.random() );
-	editsize.position.set(0, 0, -i/10);
+	editsize.position.set(Math.random()/10, 0, -i/10);
 	scene.add(editsize);
 	i++;
-	cameraPositions.push([0, (0.1*item/100)/2+1, -i/10]);
-	lastedit = editsize.position;
+	var pos = new THREE.Vector3(0, (0.1*item/100)/2+1, -i/10);
+	cameraPositionsV3.push(pos);
 });
 
 var mygeometry = new THREE.CubeGeometry(1, 1, 0.1);
@@ -95,13 +94,6 @@ var material = new THREE.MeshBasicMaterial({
 var skybox = new THREE.Mesh(geometry, material);
 scene.add(skybox);
 
-var cameraCurrentPosition = 0;
-camera.position.x=cameraPositions[cameraCurrentPosition][0];
-camera.position.y=cameraPositions[cameraCurrentPosition][1];
-camera.position.z=cameraPositions[cameraCurrentPosition][2];
-
-console.log(lastedit);
-camera.lookAt(lastedit);
 // Request animation frame loop function
 function animate() {
     // Apply rotation to cube mesh
@@ -112,8 +104,26 @@ function animate() {
     // Render the scene through the manager.
     manager.render(scene, camera);
 
+    TWEEN.update();
     requestAnimationFrame(animate);
 }
+
+var tweens = Array();
+cameraPositionsV3.forEach( function(item, index, array){
+	var speed = 1000;
+
+	console.log("height :",array[index].y);
+
+	var newtween = new TWEEN.Tween(camera.position).to(item, speed);
+	tweens.push(newtween);
+	if ( tweens.length>1 ) {
+		//console.log('chaining ', tweens.length-1, ' with ', tweens.length);
+		tweens[tweens.length-2].chain(tweens[tweens.length-1]);
+	}
+});
+tweens[tweens.length-1].chain(tweens[0]);
+
+console.log(tweens);
 
 // Kick off animation loop
 animate();
@@ -124,17 +134,7 @@ function onKey(event) {
 	if (mydebug) console.log("sensor resetted");
     }
     if (event.keyCode == 13) { // enter to start
-	if (mydebug) console.log("moving camera to ", cameraPositions[cameraCurrentPosition]);
-	//camera.position.set(cameraPositions[cameraCurrentPosition]);
-	// no idea why I can't directly set all values...
-	// even with Vector3 it failed...
-	camera.position.x=cameraPositions[cameraCurrentPosition][0];
-	camera.position.y=cameraPositions[cameraCurrentPosition][1];
-	camera.position.z=cameraPositions[cameraCurrentPosition][2];
-	cameraCurrentPosition++;
-	if (cameraCurrentPosition >= cameraPositions.length) {
-		cameraCurrentPosition = 0;	
-	}		
+        tweens[0].start();
     }
 };
 
