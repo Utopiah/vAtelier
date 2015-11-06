@@ -6,7 +6,7 @@ var params = {
 
 var FizzyText = function() {
     this.message = 'Wiki edits as a roller coaster';
-    this.instructions = 'Enter key to start';
+    this.instructions = 'Enter key or click to start';
 };
 
 var text = new FizzyText();
@@ -26,9 +26,11 @@ document.body.appendChild(renderer.domElement);
 // Create a three.js scene.
 var scene = new THREE.Scene();
 
+var startpos = new THREE.Vector3(-5, 10, 20);
+var endpos = new THREE.Vector3(-20, 10, 20);
 // Create a three.js camera.
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.3, 10000);
-
+camera.position.set(-5,10,20);
 //create gaze interaction manager
 scene.add(camera);
 
@@ -50,7 +52,6 @@ var edits = [
  125, 399, 135, 303
 ];
 
-var startpos = new THREE.Vector3(0, 0, 0);
 
 var cameraPositionsV3 = new Array();
 // TODO smoother movement
@@ -59,13 +60,12 @@ var speeds = new Array();
 
 var i=0;
 edits.forEach( function(item, index, array){
-	var mygeometry = new THREE.CubeGeometry(1, 0.1*item/10, 1);
+	var mygeometry = new THREE.CubeGeometry(2, 0.1*item/10, 1);
 	var mymaterial = new THREE.MeshBasicMaterial({});
 	var editsize = new THREE.Mesh(mygeometry, mymaterial);
 	editsize.material.color.setRGB( Math.random(), Math.random(), Math.random() );
 	editsize.position.set(Math.random(), 0, -i);
 	/* TODO
-		# add a startpos that let the viewer has a bit of warning
 		# resize blocks to better take into account the "size" of the viewer
 		# resize skybox to better take into account the "size" of the whole experience
 		# transform blocks to connected planes
@@ -100,7 +100,7 @@ var mymaterial = new THREE.MeshBasicMaterial({
     map: mytexture
 });
 myposter = new THREE.Mesh(mygeometry, mymaterial);
-myposter.position.set(0, 0, 2);
+myposter.position.set(0, 0, -2);
 scene.add(myposter);
 
 // Also add a repeating grid as a skybox.
@@ -138,6 +138,8 @@ function animate() {
 
 var tweens = Array();
 var speed = 1000;
+var newtween = new TWEEN.Tween(camera.position).to(startpos, speed);
+tweens.push(newtween);
 cameraPositionsV3.forEach( function(item, index, array){
 	if (index>0){
 		//console.log('modify speed by ', speeds[index-1]);
@@ -155,6 +157,10 @@ cameraPositionsV3.forEach( function(item, index, array){
 		tweens[tweens.length-2].chain(tweens[tweens.length-1]);
 	}
 });
+var newtween = new TWEEN.Tween(camera.position).to(endpos, 10000);
+// very slowly out
+tweens.push(newtween);
+tweens[tweens.length-2].chain(tweens[tweens.length-1]);
 tweens[tweens.length-1].chain(tweens[0]);
 
 //console.log(tweens);
@@ -174,11 +180,14 @@ function onKey(event) {
 
 function onDblClick(event) {
 	if (mydebug) console.log("stop animation");
-        tweens[0].start();
+        tweens[0].stop();
 };
 function onClick(event) {
-	if (mydebug) console.log("start animation");
-        tweens[0].start();
+	if (camera.position.equals(startpos)){
+	// prevents from restarting the animation if moving the camera on a computer
+		if (mydebug) console.log("start animation");
+	        tweens[0].start();
+	}
 };
 
 window.addEventListener('touchstart', onClick, true);
