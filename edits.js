@@ -100,7 +100,7 @@ var mymaterial = new THREE.MeshBasicMaterial({
     map: mytexture
 });
 myposter = new THREE.Mesh(mygeometry, mymaterial);
-myposter.position.set(0, 0, -2);
+myposter.position.set(-19, 10, 19);
 scene.add(myposter);
 
 // Also add a repeating grid as a skybox.

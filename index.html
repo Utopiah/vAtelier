@@ -29,14 +29,6 @@ body {
 CARDBOARD_DEBUG = false;
 </script>
 
-<!--
-Library to display and manage a GUI on top of the visualization, useful mostly for testing values of properties.
-Note that it can often conflict with VRControls or even event defined by the script.
--->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"></script>
-<!--
-Library to handle 3D in the browser using webGL.
--->
 <script src="./js/three.js"></script>
 <!--
 VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object.
@@ -54,14 +46,168 @@ A polyfill for WebVR using the Device{Motion,Orientation}Event API.
 Helps enter and exit VR mode, provides best practices while in VR.
 -->
 <script src="./js/webvr-manager.js"></script>
-<!--
-Library to handle visual interaction with object using ray casting.
--->
-<script src="./js/vreticle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"></script>
 
-<!--
-Code actually dedicated to partially render a PIM as a VR world.
--->
-<script src="./PIM_as_VR.js"></script>
+<script>
+function shuffle(o){
+    for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+    return o;
+}
+
+var FizzyText = function() {
+    this.message = 'Root gallery of demos';
+    this.navigation = 'i key to rotate demos';
+    this.action = 'Enter to reach the one in front';
+};
+
+var text = new FizzyText();
+var gui = new dat.GUI();
+gui.add(text, 'message');
+gui.add(text, 'navigation');
+gui.add(text, 'action');
+
+//Setup three.js WebGL renderer
+var renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+
+// Append the canvas element created by the renderer to document body element.
+document.body.appendChild(renderer.domElement);
+
+// Create a three.js scene.
+var scene = new THREE.Scene();
+
+// Create a three.js camera.
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.3, 10000);
+
+scene.add(camera);
+
+// Apply VR headset positional data to camera.
+var controls = new THREE.VRControls(camera);
+
+// Apply VR stereo rendering to renderer.
+var effect = new THREE.VREffect(renderer);
+effect.setSize(window.innerWidth, window.innerHeight);
+
+// Create a VR manager helper to enter and exit VR mode.
+var manager = new WebVRManager(renderer, effect, {hideButton: false});
+
+var mygeometry = new THREE.CubeGeometry( 1, 1, 0.1 );
+mytexture = THREE.ImageUtils.loadTexture('textures/motivation_poster.jpg');
+var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+tmpcube.position.set(0, 0, 2);
+scene.add(tmpcube);
+
+// Position cube mesh
+var mydemos = new Array();
+
+// TODO flatten then link on click to https://github.com/Utopiah/CC2015Goal3Month1 2 and 3 as own rooms
+var mygeometry = new THREE.CubeGeometry( 2, 1, 0.1 );
+//var mygeometry = new THREE.SphereGeometry(75, 16, 8, 0, 2, 1, 1.2);
+mytexture = THREE.ImageUtils.loadTexture('../edits.png');
+var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+//var mymaterial = new THREE.MeshBasicMaterial({wireframe:true});
+tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+tmpcube.position.set(0, 0, -1.3);
+scene.add(tmpcube);
+mydemos.push(tmpcube);
+
+// TODO flatten then link on click to https://github.com/Utopiah/CC2015Goal3Month1 2 and 3 as own rooms
+var mygeometry = new THREE.CubeGeometry( 2, 1, 0.1 );
+mytexture = THREE.ImageUtils.loadTexture('../graph.png');
+var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+tmpcube.position.set(2, 0, -1);
+tmpcube.lookAt(camera.position);
+scene.add(tmpcube);
+mydemos.push(tmpcube);
+
+// TODO flatten then link on click to https://github.com/Utopiah/CC2015Goal3Month1 2 and 3 as own rooms
+var mygeometry = new THREE.CubeGeometry( 2, 1, 0.1 );
+mytexture = THREE.ImageUtils.loadTexture('../sphere.png');
+var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+tmpcube.position.set(-2, 0, -1);
+tmpcube.lookAt(camera.position);
+scene.add(tmpcube);
+mydemos.push(tmpcube);
+
+// Also add a repeating grid as a skybox.
+var boxWidth = 10;
+var texture = THREE.ImageUtils.loadTexture(
+        'textures/box.png'
+);
+texture.wrapS = THREE.RepeatWrapping;
+texture.wrapT = THREE.RepeatWrapping;
+texture.repeat.set(boxWidth, boxWidth);
+
+var geometry = new THREE.BoxGeometry(boxWidth, boxWidth, boxWidth);
+var material = new THREE.MeshBasicMaterial({
+  map: texture,
+  color: 0x333333,
+  side: THREE.BackSide
+});
+
+var skybox = new THREE.Mesh(geometry, material);
+scene.add(skybox);
+
+// Request animation frame loop function
+function animate() {
+
+  // Update VR headset position and apply to camera.
+  controls.update();
+
+  // Render the scene through the manager.
+  manager.render(scene, camera);
+
+  requestAnimationFrame(animate);
+  
+}
+
+// Kick off animation loop
+animate();
+
+// Reset the position sensor when 'z' pressed.
+function onKey(event) {
+  if (event.keyCode == 13) { // enter
+
+	switch(mydemos[1].material.map.sourceFile){
+	case "../graph.png":
+		window.open ('graph.html','_self',false);
+		break;
+	case "../edits.png":
+		window.open ('edits.html','_self',false);
+		break;
+	case "../sphere.png":
+		window.open ('sphere.html','_self',false);
+		break;
+	}
+  }
+  if (event.keyCode == 73) { // 'i'
+	console.log("shuffling demos");
+	shuffle(mydemos);
+	// really dirty... should use a proper structure for demos with name, URL, texture, etc... but yeah, works.
+	mydemos[1].position.set(0, 0, -1.3);
+	mydemos[1].lookAt(camera.position);
+	mydemos[2].position.set(2, 0, -1);
+	mydemos[2].lookAt(camera.position);
+	mydemos[0].position.set(-2, 0, -1);
+	mydemos[0].lookAt(camera.position);
+  }
+};
+
+window.addEventListener('keydown', onKey, true);
+
+// Handle window resizes
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  effect.setSize( window.innerWidth, window.innerHeight );
+}
+
+window.addEventListener('resize', onWindowResize, false);
+
+</script>
 
 </html>
