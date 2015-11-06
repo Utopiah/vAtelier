@@ -49,11 +49,6 @@ Helps enter and exit VR mode, provides best practices while in VR.
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"></script>
 
 <script>
-function shuffle(o){
-    for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-    return o;
-}
-
 var FizzyText = function() {
     this.message = 'Root gallery of demos';
     this.navigation = 'i key to rotate demos';
@@ -184,8 +179,10 @@ function onKey(event) {
 	}
   }
   if (event.keyCode == 73) { // 'i'
-	console.log("shuffling demos");
-	shuffle(mydemos);
+	tmp = mydemos[0];
+	mydemos[0]=mydemos[1];
+	mydemos[1]=mydemos[2];
+	mydemos[2]=tmp;
 	// really dirty... should use a proper structure for demos with name, URL, texture, etc... but yeah, works.
 	mydemos[1].position.set(0, 0, -1.3);
 	mydemos[1].lookAt(camera.position);
