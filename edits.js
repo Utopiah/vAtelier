@@ -50,21 +50,49 @@ var edits = [
  125, 399, 135, 303
 ];
 
+var startpos = new THREE.Vector3(0, 0, 0);
+
 var cameraPositionsV3 = new Array();
 // TODO smoother movement
 
+var speeds = new Array();
+
 var i=0;
 edits.forEach( function(item, index, array){
-	var mygeometry = new THREE.CubeGeometry(0.1, 0.1*item/100, 0.1);
+	var mygeometry = new THREE.CubeGeometry(1, 0.1*item/10, 1);
 	var mymaterial = new THREE.MeshBasicMaterial({});
 	var editsize = new THREE.Mesh(mygeometry, mymaterial);
 	editsize.material.color.setRGB( Math.random(), Math.random(), Math.random() );
-	editsize.position.set(Math.random()/10, 0, -i/10);
+	editsize.position.set(Math.random(), 0, -i);
+	/* TODO
+		# add a startpos that let the viewer has a bit of warning
+		# resize blocks to better take into account the "size" of the viewer
+		# resize skybox to better take into account the "size" of the whole experience
+		# transform blocks to connected planes
+		# transform planes to a curbe
+		# add miningful landmarks
+	*/
+	if (index<array.length-1){
+	// change tweening speed based on difference Height(t) - Height(t+1)
+		difference = item - array[index+1];
+		if (difference>0){ // we are going down, go faster
+			//console.log('faster by ', difference);
+		} else { // we are going up, go slower
+			//console.log('slower by ', difference);
+		}
+		speeds.push(difference);
+	}
 	scene.add(editsize);
 	i++;
-	var pos = new THREE.Vector3(0, (0.1*item/100)/2+1, -i/10);
+	var pos = new THREE.Vector3(0, (0.1*item/10)/2+1, -i);
 	cameraPositionsV3.push(pos);
 });
+
+var mygeometry = new THREE.CubeGeometry(3, 3, 50);
+var mymaterial = new THREE.MeshBasicMaterial({});
+myfloor = new THREE.Mesh(mygeometry, mymaterial);
+myfloor.position.set(0.5, -3, 0);
+scene.add(myfloor);
 
 var mygeometry = new THREE.CubeGeometry(1, 1, 0.1);
 mytexture = THREE.ImageUtils.loadTexture('textures/motivation_poster.jpg');
@@ -76,7 +104,7 @@ myposter.position.set(0, 0, 2);
 scene.add(myposter);
 
 // Also add a repeating grid as a skybox.
-var boxWidth = 10;
+var boxWidth = 50;
 var texture = THREE.ImageUtils.loadTexture( 'textures/box.png');
 texture.wrapS = THREE.RepeatWrapping;
 texture.wrapT = THREE.RepeatWrapping;
@@ -109,10 +137,16 @@ function animate() {
 }
 
 var tweens = Array();
+var speed = 1000;
 cameraPositionsV3.forEach( function(item, index, array){
-	var speed = 1000;
+	if (index>0){
+		//console.log('modify speed by ', speeds[index-1]);
+		speed -= speeds[index-1]/10;
+		// be cautious, negative speed brings you... nowhere
+		// also the name isn't appropriate since it is the duration of the tween, hence the bigger the slower
+	}
 
-	console.log("height :",array[index].y);
+	//console.log("height :",array[index].y);
 
 	var newtween = new TWEEN.Tween(camera.position).to(item, speed);
 	tweens.push(newtween);
@@ -123,7 +157,7 @@ cameraPositionsV3.forEach( function(item, index, array){
 });
 tweens[tweens.length-1].chain(tweens[0]);
 
-console.log(tweens);
+//console.log(tweens);
 
 // Kick off animation loop
 animate();
