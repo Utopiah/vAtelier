@@ -26,11 +26,8 @@ document.body.appendChild(renderer.domElement);
 // Create a three.js scene.
 var scene = new THREE.Scene();
 
-var startpos = new THREE.Vector3(-5, 10, 20);
-var endpos = new THREE.Vector3(-20, 10, 20);
 // Create a three.js camera.
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.3, 10000);
-camera.position.set(-5,10,20);
 //create gaze interaction manager
 scene.add(camera);
 
@@ -46,58 +43,62 @@ var manager = new WebVRManager(renderer, effect, {
     hideButton: false
 });
 
-compositering1 = new THREE.Group();
+var geometry = new THREE.SphereGeometry(24, 12, 8);
+var sphere = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xffd700, transparent: true, opacity: 0.5, wireframe: true}));
+scene.add(sphere);
+
+var myRings = new Array();
+var radius = 15;
+var myTeens = new Array();
+
+var myColor = new THREE.Color( 0xffd700 );
 var thetaSegments = 16;
 var phiSegments = 2;
-var geometry = new THREE.RingGeometry(10, 20, thetaSegments, phiSegments, 0, Math.PI * 2);
-var ring1 = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0x00ff00, transparent: true, opacity: 0.7}));
-ring1.position.set(2, 2, -8);
-var geometry = new THREE.BoxGeometry(10, 10, 1);
-var material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity:0.7});
-var ring1tip = new THREE.Mesh(geometry, material);
-ring1tip.position.set(2, 26, -8);
-compositering1.add (ring1);
-compositering1.add (ring1tip);
-scene.add(compositering1);
 
-compositering2 = new THREE.Group();
-var geometry = new THREE.RingGeometry(10, 20, thetaSegments, phiSegments, 0, Math.PI * 2);
-var ring2 = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xff0000, transparent: true, opacity: 0.7}));
-ring2.position.set(-2, -2, -5);
-var geometry = new THREE.BoxGeometry(10, 10, 1);
-var material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity:0.7});
-var ring2tip = new THREE.Mesh(geometry, material);
-ring2tip.position.set(-2, 22, -5);
-compositering2.add (ring2);
-compositering2.add (ring2tip);
-scene.add(compositering2);
+var circleStartPos = new THREE.Vector3(0,1,0);
+var circleEndPos = new THREE.Vector3(0,-1,0);
+var geometry = new THREE.RingGeometry(1, 1.1, thetaSegments, phiSegments, 0, Math.PI * 2);
+var circle = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: myColor, transparent: true, opacity: 0.3}));
+circle.material.side = THREE.DoubleSide;
+circle.rotateX(Math.PI/2);
+circle.position.set(0,1,0);
+var circletweenA = new TWEEN.Tween(circle.position).to(circleEndPos, 10000);
+var circletweenB = new TWEEN.Tween(circle.position).to(circleStartPos, 10000);
+circletweenA.chain(circletweenB);
+circletweenB.chain(circletweenA);
+circletweenA.start();
+scene.add(circle);
 
 
-var edits = [
- 281, 728, 580, 1553, 3014, 2176, 4252, 3573, 3226, 3726,
-1938, 808, 529, 171, 138, 320, 331, 144, 212, 75,
- 125, 399, 135, 303
-];
-
-var cameraPositionsV3 = new Array();
-var speeds = new Array();
-
-var i=0;
-edits.forEach( function(item, index, array){
-	if (index<array.length-1){
-	// change tweening speed based on difference Height(t) - Height(t+1)
-		difference = item - array[index+1];
-		if (difference>0){ // we are going down, go faster
-			//console.log('faster by ', difference);
-		} else { // we are going up, go slower
-			//console.log('slower by ', difference);
-		}
-		speeds.push(difference);
-	}
-	i++;
-	var pos = new THREE.Vector3(0, (0.1*item/10)/2+1, -i);
-	cameraPositionsV3.push(pos);
-});
+for (var i=0;i<21;i++){
+	compositering = new THREE.Group();
+	var geometry = new THREE.RingGeometry(1.4, 2, thetaSegments, phiSegments, 0, Math.PI * 2);
+	var ring = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: myColor, transparent: true, opacity: 0.7}));
+	//ring.position.set(2, 2, -8);
+	var geometry = new THREE.BoxGeometry(1, 1, 0.1);
+	var material = new THREE.MeshBasicMaterial({ color: myColor, transparent: true, opacity:0.7});
+	var ringtip = new THREE.Mesh(geometry, material);
+	var geometry = new THREE.RingGeometry(2.3, 2.4, thetaSegments, phiSegments, 0, Math.PI * 2);
+	var outerring = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: myColor, transparent: true, opacity: 0.3}));
+	var geometry = new THREE.RingGeometry(2.5, 2.7, thetaSegments, phiSegments, 0, Math.PI * 2);
+	var secondouterring = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: myColor, transparent: true, opacity: 0.5}));
+	//weird positionning...
+	ringtip.position.set(0, 2.4, -0.8);
+	compositering.add(secondouterring);
+	compositering.add(outerring);
+	compositering.add(ring);
+	compositering.add(ringtip);
+	myRings.push({ring: compositering, speed: Math.random() * (0.3 - 0.1) + 0.1});
+	var x = Math.random() - 0.5;
+	var y = Math.random() - 0.5;
+	var z = Math.random() - 0.5;
+	compositering.position.set( x, y, z );
+	compositering.position.normalize();
+	compositering.position.multiplyScalar( radius );
+	compositering.lookAt(camera.position);
+	// ideally would not overlap others
+	scene.add(compositering);
+}
 
 
 // Request animation frame loop function
@@ -105,44 +106,16 @@ function animate() {
     // Apply rotation to cube mesh
 
     // Update VR headset position and apply to camera.
-    controls.update();
+	controls.update();
 
-    // Render the scene through the manager.
-    manager.render(scene, camera);
-    compositering1.rotateZ(0.1);
-    compositering2.rotateZ(0.3);
-    TWEEN.update();
-    requestAnimationFrame(animate);
+	// Render the scene through the manager.
+	manager.render(scene, camera);
+	myRings.forEach( function(item, index, array){
+		item.ring.rotateZ(item.speed);
+	});
+	TWEEN.update();
+	requestAnimationFrame(animate);
 }
-
-var tweens = Array();
-var speed = 1000;
-var newtween = new TWEEN.Tween(camera.position).to(startpos, speed);
-tweens.push(newtween);
-cameraPositionsV3.forEach( function(item, index, array){
-	if (index>0){
-		//console.log('modify speed by ', speeds[index-1]);
-		speed -= speeds[index-1]/10;
-		// be cautious, negative speed brings you... nowhere
-		// also the name isn't appropriate since it is the duration of the tween, hence the bigger the slower
-	}
-
-	//console.log("height :",array[index].y);
-
-	var newtween = new TWEEN.Tween(camera.position).to(item, speed);
-	tweens.push(newtween);
-	if ( tweens.length>1 ) {
-		//console.log('chaining ', tweens.length-1, ' with ', tweens.length);
-		tweens[tweens.length-2].chain(tweens[tweens.length-1]);
-	}
-});
-var newtween = new TWEEN.Tween(camera.position).to(endpos, 10000);
-// very slowly out
-tweens.push(newtween);
-tweens[tweens.length-2].chain(tweens[tweens.length-1]);
-tweens[tweens.length-1].chain(tweens[0]);
-
-//console.log(tweens);
 
 // Kick off animation loop
 animate();
@@ -153,20 +126,18 @@ function onKey(event) {
 	if (mydebug) console.log("sensor resetted");
     }
     if (event.keyCode == 13) { // enter to start
-        //tweens[0].start();
+	// does NOT prevents from restarting the animation if moving the camera on a computer
+	if (mydebug) console.log("start animation");
+	myTeens.forEach( function(item, index, array){
+		item.start();
+	});
     }
 };
 
 function onDblClick(event) {
 	if (mydebug) console.log("stop animation");
-        tweens[0].stop();
 };
 function onClick(event) {
-	if (camera.position.equals(startpos)){
-	// prevents from restarting the animation if moving the camera on a computer
-		if (mydebug) console.log("start animation");
-	        //tweens[0].start();
-	}
 };
 
 window.addEventListener('touchstart', onClick, true);
