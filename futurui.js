@@ -8,6 +8,7 @@ audio.play();
 
 var mydebug = true;
 
+/*
 var params = {
     positionZpages: -2
 }
@@ -21,7 +22,7 @@ var text = new FizzyText();
 var gui = new dat.GUI();
 gui.add(text, 'message');
 gui.add(text, 'instructions');
-
+*/
 //Setup three.js WebGL renderer
 var renderer = new THREE.WebGLRenderer({
     antialias: true
