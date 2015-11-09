@@ -1,10 +1,10 @@
+// basic audio, no positionning
 var audio = document.createElement('audio');
 var source = document.createElement('source');
 source.src = 'gits.mp3';
 audio.appendChild(source);
 audio.volume = 0.01;
 audio.play();
-
 
 var mydebug = true;
 
@@ -37,6 +37,7 @@ var scene = new THREE.Scene();
 // Create a three.js camera.
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.3, 10000);
 //create gaze interaction manager
+var reticle = vreticle.Reticle(camera);
 scene.add(camera);
 
 // Apply VR headset positional data to camera.
@@ -100,23 +101,46 @@ for (var i=0;i<21;i++){
 	compositering.add(outerring);
 	compositering.add(ring);
 	compositering.add(ringtip);
-	myRings.push({ring: compositering, speed: Math.random() * (0.3 - 0.1) + 0.1});
 	var x = Math.random() - 0.5;
 	var y = Math.random() - 0.5;
 	var z = Math.random() - 0.5;
 	compositering.position.set( x, y, z );
 	compositering.position.normalize();
 	compositering.position.multiplyScalar( radius );
+	// can be also on random or predefined radii to give more depth
 	compositering.lookAt(camera.position);
 	// TODO prevent overlap with previously add objects
 	scene.add(compositering);
+
+	var geometry = new THREE.SphereGeometry(2);
+	var fantomSphere = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: myColor, transparent: true, opacity: 0}));
+	fantomSphere.position.add(compositering.position);
+	scene.add(fantomSphere);
+	// have to handle reticle by object, not group
+	myRings.push({ring: compositering, speed: Math.random() * (0.3 - 0.1) + 0.1, fantom: fantomSphere});
 }
+
+myRings.forEach(function (item, index, array){
+        item.fantom.ongazelong = function() {
+        }
+        item.fantom.ongazeover = function() {
+		item.ring.scale.x = 2;
+		item.ring.scale.y = 2;
+		item.ring.scale.z = 2;
+        }
+        item.fantom.ongazeout = function() {
+		item.ring.scale.x = 1;
+		item.ring.scale.y = 1;
+		item.ring.scale.z = 1;
+        }
+        reticle.add_collider(item.fantom);
+});
 
 // framebox for contextual information
 var geometry = new THREE.Geometry();
-var z = -3;
-var x = -3;
+var x = 0;
 var y = 0;
+var z = 0;
 var width = 1;
 var height = 2;
 var cornersize = 2*width/10;
@@ -142,20 +166,24 @@ compositeframe = new THREE.Group();
 compositeframe.add(frame);
 compositeframe.add(framebox);
 scene.add(compositeframe);
+compositeframe.position.set(-3,0,-3);
 compositeframe.lookAt(camera.position);
 
+centre= new THREE.Object3D();
+scene.add( centre );
+centre.add( compositeframe );
+
 /*
-	TODO
-		display number on each composite object using text
-			japanese style font
-		gaze
-			short : object stop spnining bring lookAt object closer to the view
-			long : bring lookAt object closer to the view or change color
-				display HUD, top right corner display a transparent cube with frame as lines then text on it regarding
-					current position, timestamp of creation, number, etc
-			out : bring it back to its initial position or or color
-		apply a shader as a general effect
-		music loop background
+TODO
+	display number on each composite object using text
+		japanese style font
+	gaze
+		short : object stop spnining bring lookAt object closer to the view
+		long : bring lookAt object closer to the view or change color
+			display HUD, top right corner display a transparent cube with frame as lines then text on it regarding
+				current position, timestamp of creation, number, etc
+		out : bring it back to its initial position or or color
+	apply a shader as a general effect
 */
 
 // Request animation frame loop function
@@ -169,7 +197,10 @@ function animate() {
 	myRings.forEach( function(item, index, array){
 		item.ring.rotateZ(item.speed);
 	});
+	centre.rotateY(-0.01);
+	//compositeframe.lookAt(camera.position);
 	TWEEN.update();
+	reticle.reticle_loop();
 	requestAnimationFrame(animate);
 }
 
