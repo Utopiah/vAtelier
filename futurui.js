@@ -104,6 +104,51 @@ for (var i=0;i<21;i++){
 	scene.add(compositering);
 }
 
+// framebox for contextual information
+var geometry = new THREE.Geometry();
+var z = -3;
+var x = -3;
+var y = 0;
+var width = 1;
+var height = 2;
+var cornersize = 2*width/10;
+var A = new THREE.Vector3(x+cornersize,y,z);
+var B = new THREE.Vector3(x+width,y,z);
+var C = new THREE.Vector3(x+width,y+height-cornersize,z);
+var D = new THREE.Vector3(x+width-cornersize,y+height,z);
+var E = new THREE.Vector3(x,y+height,z);
+var F = new THREE.Vector3(x,y+cornersize,z);
+geometry.vertices.push(A, B);
+geometry.vertices.push(B, C);
+geometry.vertices.push(C, D);
+geometry.vertices.push(D, E);
+geometry.vertices.push(E, F);
+geometry.vertices.push(F, A);
+var material = new THREE.LineBasicMaterial({ color: myColor, linewidth: 1, wireframe: true});   
+var frame = new THREE.Line(geometry, material);
+var geometry = new THREE.BoxGeometry(width+2*width/10, height+height/10, 0.1);
+var material = new THREE.MeshBasicMaterial({ color: myColor, transparent: true, opacity:0.5});
+var framebox = new THREE.Mesh(geometry, material);
+framebox.position.set(x+width/2,y+height/2,z); 
+compositeframe = new THREE.Group();
+compositeframe.add(frame);
+compositeframe.add(framebox);
+scene.add(compositeframe);
+compositeframe.lookAt(camera.position);
+
+/*
+	TODO
+		display number on each composite object using text
+			japanese style font
+		gaze
+			short : object stop spnining bring lookAt object closer to the view
+			long : bring lookAt object closer to the view or change color
+				display HUD, top right corner display a transparent cube with frame as lines then text on it regarding
+					current position, timestamp of creation, number, etc
+			out : bring it back to its initial position or or color
+		apply a shader as a general effect
+		music loop background
+*/
 
 // Request animation frame loop function
 function animate() {
