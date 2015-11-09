@@ -43,18 +43,19 @@ var manager = new WebVRManager(renderer, effect, {
     hideButton: false
 });
 
-var geometry = new THREE.SphereGeometry(24, 12, 8);
-var sphere = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xffd700, transparent: true, opacity: 0.5, wireframe: true}));
-scene.add(sphere);
-
 var myRings = new Array();
-var radius = 15;
 var myTeens = new Array();
-
-var myColor = new THREE.Color( 0xffd700 );
+var myColors = new Array();
+var radius = 15;
 var thetaSegments = 16;
 var phiSegments = 2;
 
+// randomly pick from a selection
+myColors.push(new THREE.Color( 0xffd700 )); // Gold
+myColors.push(new THREE.Color( 0x0000ff )); // Blue
+var myColor = myColors[Math.floor(Math.random() * myColors.length)];
+
+// vertically moving circle
 var circleStartPos = new THREE.Vector3(0,1,0);
 var circleEndPos = new THREE.Vector3(0,-1,0);
 var geometry = new THREE.RingGeometry(1, 1.1, thetaSegments, phiSegments, 0, Math.PI * 2);
@@ -69,12 +70,16 @@ circletweenB.chain(circletweenA);
 circletweenA.start();
 scene.add(circle);
 
+// boundary sphere
+var geometry = new THREE.SphereGeometry(24, 12, 8);
+var sphere = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: myColor, transparent: true, opacity: 0.5, wireframe: true}));
+scene.add(sphere);
 
 for (var i=0;i<21;i++){
+	// composite object forming a group
 	compositering = new THREE.Group();
 	var geometry = new THREE.RingGeometry(1.4, 2, thetaSegments, phiSegments, 0, Math.PI * 2);
 	var ring = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: myColor, transparent: true, opacity: 0.7}));
-	//ring.position.set(2, 2, -8);
 	var geometry = new THREE.BoxGeometry(1, 1, 0.1);
 	var material = new THREE.MeshBasicMaterial({ color: myColor, transparent: true, opacity:0.7});
 	var ringtip = new THREE.Mesh(geometry, material);
@@ -82,7 +87,6 @@ for (var i=0;i<21;i++){
 	var outerring = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: myColor, transparent: true, opacity: 0.3}));
 	var geometry = new THREE.RingGeometry(2.5, 2.7, thetaSegments, phiSegments, 0, Math.PI * 2);
 	var secondouterring = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: myColor, transparent: true, opacity: 0.5}));
-	//weird positionning...
 	ringtip.position.set(0, 2.4, -0.8);
 	compositering.add(secondouterring);
 	compositering.add(outerring);
@@ -96,16 +100,15 @@ for (var i=0;i<21;i++){
 	compositering.position.normalize();
 	compositering.position.multiplyScalar( radius );
 	compositering.lookAt(camera.position);
-	// ideally would not overlap others
+	// TODO prevent overlap with previously add objects
 	scene.add(compositering);
 }
 
 
 // Request animation frame loop function
 function animate() {
-    // Apply rotation to cube mesh
 
-    // Update VR headset position and apply to camera.
+	// Update VR headset position and apply to camera.
 	controls.update();
 
 	// Render the scene through the manager.
@@ -121,21 +124,15 @@ function animate() {
 animate();
 
 function onKey(event) {
-    if (event.keyCode == 90) { // z to reset the sensors
-        controls.resetSensor();
+	if (event.keyCode == 90) { // z to reset the sensors
+	controls.resetSensor();
 	if (mydebug) console.log("sensor resetted");
-    }
-    if (event.keyCode == 13) { // enter to start
-	// does NOT prevents from restarting the animation if moving the camera on a computer
-	if (mydebug) console.log("start animation");
-	myTeens.forEach( function(item, index, array){
-		item.start();
-	});
-    }
+	}
+	if (event.keyCode == 13) { // enter to start
+	}
 };
 
 function onDblClick(event) {
-	if (mydebug) console.log("stop animation");
 };
 function onClick(event) {
 };
