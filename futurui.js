@@ -1,3 +1,11 @@
+var audio = document.createElement('audio');
+var source = document.createElement('source');
+source.src = 'gits.mp3';
+audio.appendChild(source);
+audio.volume = 0.01;
+audio.play();
+
+
 var mydebug = true;
 
 var params = {
