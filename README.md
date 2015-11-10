@@ -5,7 +5,8 @@ vAtelier.net on-going demo of using webVR to manipulate a network of personal no
 1. use actual links 
  1. fix Python processing
  1. use the new processed graph
-1. make a generic page name passed as parameter that is reached using Enter/Tap
+1. ~~make a generic page name passed as parameter that is reached using Enter/Tap~~
+ 1. done via PageAsRoom.html
 1. display a restricted set of pages based on parameters
  1. edit date e.g. last 10 edited pages
  1. group name e.g. Main
