@@ -100,36 +100,24 @@ TODO
 	automatize the gallery
 */
 
-// TODO flatten then link on click to https://github.com/Utopiah/CC2015Goal3Month1 2 and 3 as own rooms
-var mygeometry = new THREE.CubeGeometry( 2, 1, 0.1 );
-//var mygeometry = new THREE.SphereGeometry(75, 16, 8, 0, 2, 1, 1.2);
-mytexture = THREE.ImageUtils.loadTexture('../edits.png');
-var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
-//var mymaterial = new THREE.MeshBasicMaterial({wireframe:true});
-tmpcube = new THREE.Mesh( mygeometry, mymaterial );
-tmpcube.position.set(0, 0, -1.3);
-scene.add(tmpcube);
-mydemos.push(tmpcube);
+var myDemos = new Array();
+myDemos.push(
+	{texture:'../edits.png', url: 'edits.html', startx:0, starty:0, startz:-1.3},
+	{texture:'../graph.png', url: 'graph.html', startx:2, starty:0, startz:-1},
+	{texture:'../futurui.png', url: 'futurui.html', startx:-2, starty:0, startz:-1}
+	);
+//myDemos.push({texture:'../sphere.png', url: 'sphere.html', startx:-2, starty:0, startz:-1});
 
-// TODO flatten then link on click to https://github.com/Utopiah/CC2015Goal3Month1 2 and 3 as own rooms
-var mygeometry = new THREE.CubeGeometry( 2, 1, 0.1 );
-mytexture = THREE.ImageUtils.loadTexture('../graph.png');
-var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
-tmpcube = new THREE.Mesh( mygeometry, mymaterial );
-tmpcube.position.set(2, 0, -1);
-tmpcube.lookAt(camera.position);
-scene.add(tmpcube);
-mydemos.push(tmpcube);
-
-// TODO flatten then link on click to https://github.com/Utopiah/CC2015Goal3Month1 2 and 3 as own rooms
-var mygeometry = new THREE.CubeGeometry( 2, 1, 0.1 );
-mytexture = THREE.ImageUtils.loadTexture('../sphere.png');
-var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
-tmpcube = new THREE.Mesh( mygeometry, mymaterial );
-tmpcube.position.set(-2, 0, -1);
-tmpcube.lookAt(camera.position);
-scene.add(tmpcube);
-mydemos.push(tmpcube);
+myDemos.forEach( function(item, index, array){
+	var mygeometry = new THREE.CubeGeometry( 2, 1, 0.1 );
+	mytexture = THREE.ImageUtils.loadTexture(item.texture);
+	var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+	tmpcube = new THREE.Mesh( mygeometry, mymaterial );
+	tmpcube.position.set(item.startx, item.starty, item.startz);
+	tmpcube.lookAt(camera.position);
+	scene.add(tmpcube);
+	item["object3D"] = tmpcube;
+});
 
 // Also add a repeating grid as a skybox.
 var boxWidth = 10;
@@ -165,17 +153,17 @@ function animate() {
 
 function ShiftDemos(){
 	// TODO move on to N demo
-	tmp = mydemos[0];
-	mydemos[0]=mydemos[1];
-	mydemos[1]=mydemos[2];
-	mydemos[2]=tmp;
-	// really dirty... should use a proper structure for demos with name, URL, texture, etc... but yeah, works.
-	mydemos[1].position.set(0, 0, -1.3);
-	mydemos[1].lookAt(camera.position);
-	mydemos[2].position.set(2, 0, -1);
-	mydemos[2].lookAt(camera.position);
-	mydemos[0].position.set(-2, 0, -1);
-	mydemos[0].lookAt(camera.position);
+	tmp = myDemos[0];
+	myDemos[0]=myDemos[1];
+	myDemos[1]=myDemos[2];
+	myDemos[2]=tmp;
+	// really dirty...
+	myDemos[1].object3D.position.set(0, 0, -1.3);
+	myDemos[1].object3D.lookAt(camera.position);
+	myDemos[2].object3D.position.set(2, 0, -1);
+	myDemos[2].object3D.lookAt(camera.position);
+	myDemos[0].object3D.position.set(-2, 0, -1);
+	myDemos[0].object3D.lookAt(camera.position);
 }
 
 var myTimer = setInterval(ShiftDemos, 4000);
@@ -186,18 +174,8 @@ animate();
 // Reset the position sensor when 'z' pressed.
 function onKey(event) {
   if (event.keyCode == 13) { // enter
-
-	switch(mydemos[1].material.map.sourceFile){
-	case "../graph.png":
-		window.open ('graph.html','_self',false);
-		break;
-	case "../edits.png":
-		window.open ('edits.html','_self',false);
-		break;
-	case "../sphere.png":
-		window.open ('sphere.html','_self',false);
-		break;
-	}
+	window.open(myDemos[1].url, '_self', false);
+	// assuming the demo in the center is the 2nd in the array
   }
   if (event.keyCode == 73) { // 'i'
 	ShiftDemos();
@@ -219,7 +197,6 @@ function onWindowResize() {
 window.addEventListener('resize', onWindowResize, false);
 
 </script>
-
 <!--
 Make sure that, in addition to being technically correct, the VR app is actually pleasant
 following lessons from cognitive science.
