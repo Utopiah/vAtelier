@@ -174,6 +174,20 @@ centre= new THREE.Object3D();
 scene.add( centre );
 centre.add( compositeframe );
 
+var geometry = new THREE.BoxGeometry(width, width, 0.1);
+var material = new THREE.MeshBasicMaterial({ color: myColor, transparent: true, opacity:0.4});
+var landscapelayer = new THREE.Mesh(geometry, material);
+landscapelayer .position.set(-1,-4,-1);
+scene.add(landscapelayer);
+landscapelayer.lookAt(camera.position);
+var landscapelayer = new THREE.Mesh(geometry, material);
+landscapelayer .position.set(-1,-4.5,-1);
+scene.add(landscapelayer);
+landscapelayer.lookAt(camera.position);
+var landscapelayer = new THREE.Mesh(geometry, material);
+landscapelayer .position.set(-1,-5,-1);
+scene.add(landscapelayer);
+landscapelayer.lookAt(camera.position);
 /*
 TODO
 	display number on each composite object using text
