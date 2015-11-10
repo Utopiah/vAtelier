@@ -163,6 +163,23 @@ function animate() {
   
 }
 
+function ShiftDemos(){
+	// TODO move on to N demo
+	tmp = mydemos[0];
+	mydemos[0]=mydemos[1];
+	mydemos[1]=mydemos[2];
+	mydemos[2]=tmp;
+	// really dirty... should use a proper structure for demos with name, URL, texture, etc... but yeah, works.
+	mydemos[1].position.set(0, 0, -1.3);
+	mydemos[1].lookAt(camera.position);
+	mydemos[2].position.set(2, 0, -1);
+	mydemos[2].lookAt(camera.position);
+	mydemos[0].position.set(-2, 0, -1);
+	mydemos[0].lookAt(camera.position);
+}
+
+var myTimer = setInterval(ShiftDemos, 4000);
+
 // Kick off animation loop
 animate();
 
@@ -183,17 +200,9 @@ function onKey(event) {
 	}
   }
   if (event.keyCode == 73) { // 'i'
-	tmp = mydemos[0];
-	mydemos[0]=mydemos[1];
-	mydemos[1]=mydemos[2];
-	mydemos[2]=tmp;
-	// really dirty... should use a proper structure for demos with name, URL, texture, etc... but yeah, works.
-	mydemos[1].position.set(0, 0, -1.3);
-	mydemos[1].lookAt(camera.position);
-	mydemos[2].position.set(2, 0, -1);
-	mydemos[2].lookAt(camera.position);
-	mydemos[0].position.set(-2, 0, -1);
-	mydemos[0].lookAt(camera.position);
+	ShiftDemos();
+	clearInterval(myTimer);
+	myTimer = setInterval(ShiftDemos, 4000);
   }
 };
 
