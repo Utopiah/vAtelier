@@ -20,18 +20,6 @@ body {
 
 <body>
 
-<?php
-$dir    = '.';
-$files = scandir($dir);
-
-print("<script>");
-foreach ($files as $key => $value)
-{ 
-	print("console.log('$value');");
-}
-print("</script>");
-?>
-
 </body>
 
 <script>
@@ -61,6 +49,20 @@ Helps enter and exit VR mode, provides best practices while in VR.
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"></script>
 
 <script>
+var foundDemos = new Array();
+<?php
+$dir    = './Previews';
+$files = scandir($dir);
+
+foreach ($files as $key => $value)
+{ 
+	if (strpos($value,'.png') !== false) {
+		print("foundDemos.push('".substr($value,0,strpos($value,'.png'))."');");
+	}
+}
+?>
+console.log(foundDemos);
+
 var FizzyText = function() {
     this.message = 'Root gallery of demos';
     this.navigation = 'i key to rotate demos';
@@ -101,24 +103,19 @@ var manager = new WebVRManager(renderer, effect, {hideButton: false});
 var mygeometry = new THREE.CubeGeometry( 1, 1, 0.1 );
 mytexture = THREE.ImageUtils.loadTexture('textures/motivation_poster.jpg');
 var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
-tmpcube = new THREE.Mesh( mygeometry, mymaterial );
-tmpcube.position.set(0, 0, 2);
-scene.add(tmpcube);
+myPoster = new THREE.Mesh( mygeometry, mymaterial );
+myPoster.position.set(0, 0, 2);
+scene.add(myPoster);
 
-// Position cube mesh
-var mydemos = new Array();
-/*
-TODO
-	automatize the gallery
-*/
-
+// TODO automatize the gallery using foundDemos
+// should be around a semi circle facing the opposite of the viewer
 var myDemos = new Array();
 myDemos.push(
-	{texture:'../edits.png', url: 'edits.html', startx:0, starty:0, startz:-1.3},
-	{texture:'../graph.png', url: 'graph.html', startx:2, starty:0, startz:-1},
-	{texture:'../futurui.png', url: 'futurui.html', startx:-2, starty:0, startz:-1}
+	{texture:'./Previews/edits.png', url: 'edits.html', startx:0, starty:0, startz:-1.3},
+	{texture:'./Previews/graph.png', url: 'graph.html', startx:2, starty:0, startz:-1},
+	{texture:'./Previews/futurui.png', url: 'futurui.html', startx:-2, starty:0, startz:-1}
 	);
-//myDemos.push({texture:'../sphere.png', url: 'sphere.html', startx:-2, starty:0, startz:-1});
+//myDemos.push({texture:'./Previews/sphere.png', url: 'sphere.html', startx:-2, starty:0, startz:-1});
 
 myDemos.forEach( function(item, index, array){
 	var mygeometry = new THREE.CubeGeometry( 2, 1, 0.1 );
