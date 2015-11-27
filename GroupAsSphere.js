@@ -50,8 +50,8 @@ var QueryString = function () {
     return query_string;
 }();
 
-console.log("QueryString.PIMPage: ",QueryString.PIMPage);
-//mytexture = THREE.ImageUtils.loadTexture("./MyRenderedPages/fabien.benetou.fr_" + QueryString.PIMPage.replace(".", "_") + ".png");
+console.log("QueryString.PIMPage: ",QueryString.PIMGroup);
+var TargetGroup = QueryString.PIMGroup;
 // TODO expected to be called from GroupAsSphere.html?PIMGroup=TargetGroup
 // should return a group
 
@@ -109,20 +109,13 @@ var radius = 3;
 
 // TODO use the returned group from the URL, not the entire wiki
 while (pagesdisplayed < maxpages && i < arr.Nodes.length) {
-	if (mydebug) console.log("pages displayed:", pagesdisplayed+1);
-	i++;
 	if (mydebug) console.log("Current node ID:", arr.Nodes[i].Id);
+	if (mydebug) console.log("Current node ID:", arr.Nodes[i].Id.split(".")[0]);
+	var currentgroup = arr.Nodes[i].Id.split(".")[0];
+	if (currentgroup == TargetGroup) console.log("Page in current group");
 	if (mydebug) console.log("Current node revisions:", arr.Nodes[i].Rev);
-	//if (mydebug) console.log("Current node vertices:", arr.Vertices[i]);
-	var linkedPages = new Array();
-	for(var j= 0; j < arr.Vertices.length; j++)
-	{
-		if (arr.Vertices[j].FROM == arr.Nodes[i].Id)
-			linkedPages = arr.Vertices[j].TO;
-	}
-	if (mydebug) console.log("Found linked pages: ",linkedPages);
 	// RecentChanges page do not get generated, none of them, as they are not part of the normal pages
-	if ((arr.Nodes[i].Id.indexOf("RecentChanges") == -1) && (arr.Nodes[i].Id.indexOf("PmWiki.") == -1)) {
+	if ((arr.Nodes[i].Id.indexOf("RecentChanges") == -1) && (arr.Nodes[i].Id.indexOf("PmWiki.") == -1) && (currentgroup == TargetGroup)) {
 		// depth based on number of revisions i.e. the more revision, the deeper the shape
 		var mygeometry = new THREE.CubeGeometry(pagesize, pagesize, pagesize * arr.Nodes[i].Rev / 100)
 		mytexture = THREE.ImageUtils.loadTexture("./MyRenderedPages/fabien.benetou.fr_" + arr.Nodes[i].Id.replace(".", "_") + ".png");
@@ -144,8 +137,10 @@ while (pagesdisplayed < maxpages && i < arr.Nodes.length) {
 		currentcube.lookAt(camera.position);
 		scene.add(currentcube);
 		pagesdisplayed++;
+		threedisplaypages.push({id:arr.Nodes[i].Id,threed:currentcube});
+		if (mydebug) console.log("pages displayed:", pagesdisplayed+1);
 	}
-	threedisplaypages.push({id:arr.Nodes[i].Id,links:linkedPages,threed:currentcube});
+	i++;
 }
 
 // cheating, random connections
@@ -159,32 +154,6 @@ for (var i=0;i<10;i++){
 	var line = new THREE.Line(geometry);
 	scene.add(line);
 }
-
-/*
-// TODO horrible solution, must be moved in the Python preprocessed part hence getting arr=MyWiki directly useful
-//go through all the pages displayed
-for (var i=0; i<threedisplaypages.length;i++){
-	//go through all the links of the current page
-	currentpage = threedisplaypages[i];
-	for (var j=0; currentpage.links.length;j++){
-		currentlinkedpage = currentpage.links[j];
-		//current linked page
-		for (var k=0; k<threedisplaypages.length;k++){
-			if (currentlinkedpage == threedisplaypages[k]){
-				for (var l=0; l<threedisplaypages.length;l++){
-					if (currentlinkedpage.Id == threedisplaypages[l].Id){
-						var geometry= new THREE.Geometry();
-						geometry.vertices.push( threedisplaypages[i].threed.position, threedisplaypages[l].threed.position);
-						var material = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 1});
-						var line = new THREE.Line(geometry);
-						scene.add(line);
-					}
-				}
-			}
-		}
-	}
-}
-*/
 
 currentlygazedcube = false;
 pickedcube = false;
