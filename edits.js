@@ -103,6 +103,15 @@ myposter = new THREE.Mesh(mygeometry, mymaterial);
 myposter.position.set(-19, 10, 19);
 scene.add(myposter);
 
+var loader=new THREE.STLLoader();
+loader.addEventListener('load', function (event){
+	var geometry=event.content;
+	var material=new THREE.MeshBasicMaterial({ color: 0xfdd017, wireframe: true });
+	var mesh=new THREE.Mesh(geometry, material);
+	scene.add(mesh);});
+// STL file to be loaded
+loader.load('ouroborus_with_stepping_stones.stl');
+    
 // Also add a repeating grid as a skybox.
 var boxWidth = 50;
 var texture = THREE.ImageUtils.loadTexture( 'textures/box.png');
