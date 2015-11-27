@@ -1,12 +1,10 @@
 import os
 from os import path
-import json
 import re
 
 
 MyDir = "/home/web/benetou.fr/fabien/wiki.d/"
-MyJSONfile = "../Wiki.json"
-MyJSONfile = "../MyWiki.js"
+MyFile = "../MyWiki.js"
 """
     modified to bypass the get limitations, dirty but works
     """
@@ -65,7 +63,8 @@ for myfile in MyWikiFiles:
             pre-process the graph to directly find the linked pages FROM the current page
             """
 
-data = {"Nodes": Nodes, "Vertices": Vertices}
+data = 'var MyWiki = {"Nodes":' + str(Nodes) + ', "Vertices": ' + str(Vertices) + '} ;'
 
-with open(MyJSONfile, 'w') as outfile:
-    json.dump(data, outfile)
+with open(MyFile, 'w') as outfile:
+    outfile.write(data)
+    outfile.close()

@@ -1,8 +1,10 @@
 #!/bin/sh
 
+python3 PmWiki_wiki.d_to_JSON.py
 echo 'arrayOfUrls = [' > urls_to_render.js
 #curl -s "http://fabien.benetou.fr/Site/AllRecentChanges?action=source" | head -20 | sed "s/^\* \[\[\(.*\)\]\]  .*/\1/" | sed "s/\./\//" | sed s"/.*/\"fabien.benetou.fr\/\0\",/" >> urls_to_render.js
-curl -s "http://fabien.benetou.fr/Site/AllRecentChanges?action=source" | sed "s/^\* \[\[\(.*\)\]\]  .*/\1/" | sed "s/\./\//" | sed s"/.*/\"fabien.benetou.fr\/\0?action=print\",/" >> urls_to_render.js
+#curl -s "http://fabien.benetou.fr/Site/AllRecentChanges?action=source" | sed "s/^\* \[\[\(.*\)\]\]  .*/\1/" | sed "s/\./\//" | sed s"/.*/\"fabien.benetou.fr\/\0?action=print\",/" >> urls_to_render.js
+curl -s "http://fabien.benetou.fr/Site/AllRecentChanges?action=source" | sed "s/^\* \[\[\(.*\)\]\]  .*/\1/" | sed "s/\./\//" | sed s"/.*/\"fabien.benetou.fr\/\0\",/" >> urls_to_render.js
 echo '];' >> urls_to_render.js
 cd ../MyRenderedPages/
 ../tooling/phantomjs ../tooling/render_multi_url.js  
