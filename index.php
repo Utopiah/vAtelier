@@ -108,7 +108,8 @@ myPoster.position.set(0, 0, 2);
 scene.add(myPoster);
 
 // TODO automatize the gallery using foundDemos
-// should be around a semi circle facing the opposite of the viewer
+// should be around a semi circle or V facing the opposite of the viewer
+// cheat by adding something else if there is an even number of demos
 var myDemos = new Array();
 myDemos.push(
 	{texture:'./Previews/edits.png', url: 'edits.html', startx:0, starty:0, startz:-1.3},

@@ -62,7 +62,7 @@ var phiSegments = 2;
 
 // randomly pick from a selection
 myColors.push(new THREE.Color( 0xffd700 )); // Gold
-myColors.push(new THREE.Color( 0x0000ff )); // Blue
+myColors.push(new THREE.Color( 0x0f00ff )); // Blue
 var myColor = myColors[Math.floor(Math.random() * myColors.length)];
 
 // vertically moving circle
@@ -138,6 +138,15 @@ myRings.forEach(function (item, index, array){
 });
 
 // framebox for contextual information
+/* TODO check proper text diusplay
+https://github.com/brianpeiris/RiftSketch/blob/master/js/TextArea.js by brianpeiris
+http://txtjs.com
+http://fabricjs.com
+http://robert.kra.hn/projects/live-programming-with-three-and-webvr
+https://www.primroseeditor.com/
+
+*/
+
 var geometry = new THREE.Geometry();
 var x = 0;
 var y = 0;
