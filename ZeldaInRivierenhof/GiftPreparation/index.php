@@ -145,7 +145,7 @@ var manager = new WebVRManager(renderer, effect, {
 });
 
 var mygeometry = new THREE.CubeGeometry(2, 2, 0.1);
-mytexture = THREE.ImageUtils.loadTexture('ZeldaMission.jpg');
+mytexture = THREE.ImageUtils.loadTexture('textures/ZeldaMission.jpg');
 var mymaterial = new THREE.MeshBasicMaterial({ map: mytexture });
 myposter = new THREE.Mesh(mygeometry, mymaterial);
 myposter.position.set(1.5, 1.5, -1.5);
@@ -165,14 +165,14 @@ for (tile in mymap){
 	var X = mapLineCounter;
 	var Z = mapCurrentLine;
 	if (mymap[tile] == 7){ // 7 used for walls
-		myTerrainTiles.push({color: 0xf0f0f0, x:X, y: -0.5, z:Z, blocking: true, tall: true});
+		myTerrainTiles.push({color: 0xf0f0f0, x:X, y: -0.5, z:Z, blocking: true, tall: true, texture: 'textures/stone.jpg'});
 	} else if (mymap[tile] == 1) {
-		myTerrainTiles.push({color: 0xffff00, x:X, y: -1, z:Z,});
+		myTerrainTiles.push({color: 0xffff00, x:X, y: -1, z:Z, texture: 'textures/path.jpg'});
 	} else if (mymap[tile] == 2) {
 		myTerrainTiles.push({color: 0x0000ff, x:X, y: -1.2, z:Z, blocking: true});
 	} else {
-		myTerrainTiles.push({color: 0x00ff00, x:X, y: -1, z:Z});
-		if (mapLineCounter==8&&mapCurrentLine==8){
+		myTerrainTiles.push({color: 0x00ff00, x:X, y: -1, z:Z, texture: 'textures/grass.jpg'});
+		if (mapLineCounter==15&&mapCurrentLine==15){
 			myTerrainTiles[myTerrainTiles.length-1].goal = true;
 			myTerrainTiles[myTerrainTiles.length-1].goalRequires = "redKey";
 		}
@@ -193,8 +193,12 @@ var myGoalTiles = new Array();
 var myItemTiles = new Array();
 myTerrainTiles.forEach( function(item, index, array){
         var mygeometry = new THREE.CubeGeometry( tileWidth, 0.1, tileLength );
-        //mytexture = THREE.ImageUtils.loadTexture(item.texture);
-        var mymaterial = new THREE.MeshBasicMaterial({color: item.color});
+	if (item.hasOwnProperty('texture')){
+		mytexture = THREE.ImageUtils.loadTexture(item.texture);
+		var mymaterial = new THREE.MeshBasicMaterial({ map: mytexture });
+	} else {
+	        var mymaterial = new THREE.MeshBasicMaterial({color: item.color});
+	}
         tile = new THREE.Mesh( mygeometry, mymaterial );
         tile.position.set(item.x, item.y, item.z);
         scene.add(tile);
@@ -226,8 +230,9 @@ camera.position.set(myDisplayedTiles[mapLineWidth+1].position.x, 0, myDisplayedT
 
 var walking = false;
 var mygeometry = new THREE.CubeGeometry( 0.5, 0.1, 0.5 );
-//mytexture = THREE.ImageUtils.loadTexture(item.texture);
-var mymaterial = new THREE.MeshBasicMaterial({color: 0xff0000});
+mytexture = THREE.ImageUtils.loadTexture('textures/walkingScroll.png');
+var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
+//var mymaterial = new THREE.MeshBasicMaterial({color: 0xff0000});
 walkerZone = new THREE.Mesh( mygeometry, mymaterial );
 walkerZone.position.set(camera.position.x,-0.9,camera.position.z);
 scene.add(walkerZone);
