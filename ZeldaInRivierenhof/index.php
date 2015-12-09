@@ -59,6 +59,7 @@ Make sure that, in addition to being technically correct, the VR app is actually
 following lessons from cognitive science.
 -->
 <script src="/MyDemo/js/VRGoodPractices.js"></script>
+<script src="map_data.js"></script>
 
 <script>
 /* TODO
@@ -82,6 +83,7 @@ TECHNICAL
 - define maps
  - terrain xxxxx,xxx x,xxx x, xx  x, xxxxx
   - should easilly convert from map to absolute xyz positions
+   - convert via http://www.superbigsquare.com/mapgenerator/
  - items 000000, 00000, 00000, 00100, 00000 
 - define movements
  - var walking = false;
@@ -124,31 +126,30 @@ var manager = new WebVRManager(renderer, effect, {
     hideButton: false
 });
 
-var myTerrainTiles = new Array();
-myTerrainTiles.push(
-        {color: 0xf0f0f0, x:1, y: -0.5, z:-4, blocking: true},
-        {color: 0xf0f0f0, x:0, y: -0.5, z:-3, blocking: true},
-        {color: 0xf0f0f0, x:2, y: -0.5, z:-3, blocking: true},
-        {color: 0xf0f0f0, x:1, y: -0.5, z:1, blocking: true},
-        {color: 0xf0f0f0, x:0, y: -0.5, z:1, blocking: true},
-        {color: 0xf0f000, x:2, y: -0.5, z:-2, blocking: true},
-        {color: 0xf0f0f0, x:2, y: -0.5, z:-1, blocking: true},
-        {color: 0xf0f0f0, x:2, y: -0.5, z:0, blocking: true},
-        {color: 0xf0f0f0, x:2, y: -0.5, z:1, blocking: true},
-        {color: 0xf0f00f, x:-1, y: -0.5, z:-2, blocking: true},
-        {color: 0xf0f0f0, x:-1, y: -0.5, z:-1, blocking: true},
-        {color: 0xf0f0f0, x:-1, y: -0.5, z:0, blocking: true},
-        {color: 0xf0f0f0, x:-1, y: -0.5, z:1, blocking: true},
+var speed = 50;
 
-        {color: 0x00ff00, x:1, y: -1, z:-3, goal: true},
-        {color: 0x00ff00, x:1, y: -1, z:-2},
-        {color: 0x00ff00, x:0, y: -1, z:-2},
-        {color: 0x00ff00, x:0, y: -1, z:0},
-        {color: 0x00ff00, x:1, y: -1, z:0},
-        {color: 0x00ff00, x:0, y: -1, z:-1},
-        {color: 0x00ff00, x:1, y: -1, z:-1}
-        );
-//myDemos.push({texture:'./Previews/sphere.png', url: 'sphere.html', startx:-2, starty:0, startz:-1});
+var mapLineCounter = 1;
+var mapLineWidth = 10;
+var mapCurrentLine = 0;
+
+var myTerrainTiles = new Array();
+for (tile in mymap){
+	var X = mapLineCounter;
+	var Z = mapCurrentLine;
+	if (mymap[tile] == 7){ // 7 used for walls
+		myTerrainTiles.push({color: 0xf0f0f0, x:X, y: -0.5, z:Z, blocking: true});
+	} else {
+		myTerrainTiles.push({color: 0x00ff00, x:X, y: -1, z:Z});
+		if (mapLineCounter==8&&mapCurrentLine==8){
+			myTerrainTiles[myTerrainTiles.length-1].goal = true;
+		}	
+	}
+	if (mapLineCounter>=mapLineWidth){
+		mapLineCounter = 0;
+		mapCurrentLine++;
+	}	
+	mapLineCounter++;
+}
 
 var tileWidth = 1;
 var tileLength = 1;
@@ -168,19 +169,20 @@ myTerrainTiles.forEach( function(item, index, array){
 	}
         if (item.hasOwnProperty('goal')){
 		var geometry = new THREE.SphereGeometry(0.2, 12, 8);
-		var sphere = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0x0000FF, transparent: true, opacity: 0.5}));
-        	sphere.position.set(item.x, 0, item.z);
-		myGoalTiles.push(sphere);
-		scene.add(sphere);
+		var goal = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0x0000FF, transparent: true, opacity: 0.5}));
+        	goal.position.set(item.x, 0, item.z);
+		myGoalTiles.push(goal);
+		scene.add(goal);
 	}
 });
+camera.position.set(myDisplayedTiles[mapLineWidth+1].position.x, 0, myDisplayedTiles[mapLineWidth+1].position.z );
 
 var walking = false;
 var mygeometry = new THREE.CubeGeometry( 0.5, 0.1, 0.5 );
 //mytexture = THREE.ImageUtils.loadTexture(item.texture);
 var mymaterial = new THREE.MeshBasicMaterial({color: 0xff0000});
 walkerZone = new THREE.Mesh( mygeometry, mymaterial );
-walkerZone.position.set(0,-0.9,0);
+walkerZone.position.set(camera.position.x,-0.9,camera.position.z);
 scene.add(walkerZone);
 walkerZone.ongazelong = function() {
 	walking = !walking;
@@ -212,8 +214,8 @@ function animate() {
 
     if (walking){
         var futurPosition = camera.position.clone();
-        futurPosition.z += camera.getWorldDirection().z/100;
-        futurPosition.x += camera.getWorldDirection().x/100;
+        futurPosition.z += camera.getWorldDirection().z/speed;
+        futurPosition.x += camera.getWorldDirection().x/speed;
 
 	var tooClose = false;
 	for (wall in myWallingTiles){
@@ -222,8 +224,8 @@ function animate() {
 		}
 	}
 	if (!tooClose){
-		camera.position.z += camera.getWorldDirection().z/100;
-		camera.position.x += camera.getWorldDirection().x/100;
+		camera.position.z += camera.getWorldDirection().z/speed;
+		camera.position.x += camera.getWorldDirection().x/speed;
 		walkerZone.position.x = camera.position.x;
 		walkerZone.position.z = camera.position.z;
 		for (goal in myGoalTiles){
