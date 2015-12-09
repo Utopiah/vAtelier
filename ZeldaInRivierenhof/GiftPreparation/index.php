@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>PIM in VR</title>
+<title>Zelda in Antwerp, exploratory VR mode for Xmas Gift Exchange!</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 <meta name="mobile-web-app-capable" content="yes">
@@ -32,6 +32,7 @@ CARDBOARD_DEBUG = false;
 <!--
 Library to handle 3D in the browser using webGL.
 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r14/Stats.js"></script>
 <script src="/MyDemo/js/three.js"></script>
 <!--
 VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object.
@@ -63,6 +64,12 @@ following lessons from cognitive science.
 
 <script>
 /* TODO
+
+Dear vontjen I hope you appreciate the effort.
+
+More detais of the entire process via https://github.com/Utopiah/vAtelier/tree/master/ZeldaInRivierenhof/GiftPreparation
+
+
 - personnalized welcome to vontjen (Zelda's style)
  - Many years ago an evil urbanist started plans to destory the beautiful forest of Rivierenhof. He gathered one of the triforce with power to bring the trees down. Princess Zelda had one of the triforce with wisdom. She divided it in into 8 units to hide it from the urbanist before she was captured. Go find the 8 units vontjen to save her.
   - can be displayed as texture on block, looking at a part of the block (long gaze at a red cross) would make it disappear
@@ -94,6 +101,17 @@ TECHNICAL
 
 Technically consider using bower and http://www.threejsgames.com/extensions/
 */
+
+var stats = new Stats();
+stats.setMode( 0 ); // 0: fps, 1: ms, 2: mb
+
+// align top-left
+stats.domElement.style.position = 'absolute';
+stats.domElement.style.left = '0px';
+stats.domElement.style.top = '0px';
+
+document.body.appendChild( stats.domElement );
+
 var mydebug = true;
 
 //Setup three.js WebGL renderer
@@ -126,6 +144,14 @@ var manager = new WebVRManager(renderer, effect, {
     hideButton: false
 });
 
+var mygeometry = new THREE.CubeGeometry(2, 2, 0.1);
+mytexture = THREE.ImageUtils.loadTexture('ZeldaMission.jpg');
+var mymaterial = new THREE.MeshBasicMaterial({ map: mytexture });
+myposter = new THREE.Mesh(mygeometry, mymaterial);
+myposter.position.set(1.5, 1.5, -1.5);
+//myposter.lookAt(camera.position);
+scene.add(myposter);
+
 var speed = 50;
 
 var mapLineCounter = 1;
@@ -140,6 +166,8 @@ for (tile in mymap){
 	var Z = mapCurrentLine;
 	if (mymap[tile] == 7){ // 7 used for walls
 		myTerrainTiles.push({color: 0xf0f0f0, x:X, y: -0.5, z:Z, blocking: true, tall: true});
+	} else if (mymap[tile] == 1) {
+		myTerrainTiles.push({color: 0xffff00, x:X, y: -1, z:Z,});
 	} else if (mymap[tile] == 2) {
 		myTerrainTiles.push({color: 0x0000ff, x:X, y: -1.2, z:Z, blocking: true});
 	} else {
@@ -221,14 +249,13 @@ scene.add(sphere);
 
 // Request animation frame loop function
 function animate() {
-    // Apply rotation to cube mesh
 
+    stats.begin();
     // Update VR headset position and apply to camera.
     controls.update();
     // Render the scene through the manager.
     manager.render(scene, camera);
 
-    requestAnimationFrame(animate);
     reticle.reticle_loop();
 
     if (walking){
@@ -276,6 +303,8 @@ function animate() {
 		}
 	}
     }
+    stats.end();
+    requestAnimationFrame(animate);
 }
 
 
