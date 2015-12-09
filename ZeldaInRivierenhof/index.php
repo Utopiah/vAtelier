@@ -132,6 +132,8 @@ var mapLineCounter = 1;
 var mapLineWidth = 10;
 var mapCurrentLine = 0;
 
+var inventory = new Array();
+
 var myTerrainTiles = new Array();
 for (tile in mymap){
 	var X = mapLineCounter;
@@ -142,7 +144,9 @@ for (tile in mymap){
 		myTerrainTiles.push({color: 0x00ff00, x:X, y: -1, z:Z});
 		if (mapLineCounter==8&&mapCurrentLine==8){
 			myTerrainTiles[myTerrainTiles.length-1].goal = true;
-		}	
+			myTerrainTiles[myTerrainTiles.length-1].goalRequires = "redKey";
+		}
+		if (mapLineCounter==8&&mapCurrentLine==1){ myTerrainTiles[myTerrainTiles.length-1].inventoryItem = "redKey"; }
 	}
 	if (mapLineCounter>=mapLineWidth){
 		mapLineCounter = 0;
@@ -156,6 +160,7 @@ var tileLength = 1;
 var myDisplayedTiles = new Array();
 var myWallingTiles = new Array();
 var myGoalTiles = new Array();
+var myItemTiles = new Array();
 myTerrainTiles.forEach( function(item, index, array){
         var mygeometry = new THREE.CubeGeometry( tileWidth, 0.1, tileLength );
         //mytexture = THREE.ImageUtils.loadTexture(item.texture);
@@ -171,8 +176,15 @@ myTerrainTiles.forEach( function(item, index, array){
 		var geometry = new THREE.SphereGeometry(0.2, 12, 8);
 		var goal = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0x0000FF, transparent: true, opacity: 0.5}));
         	goal.position.set(item.x, 0, item.z);
-		myGoalTiles.push(goal);
+		myGoalTiles.push({three3D: goal, requirement: item.goalRequires});
 		scene.add(goal);
+	}
+        if (item.hasOwnProperty('inventoryItem')){
+		var geometry = new THREE.SphereGeometry(0.1, 12, 8);
+		var inventoryItem = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xFF0000, transparent: true, opacity: 0.8}));
+        	inventoryItem.position.set(item.x, 0, item.z);
+		myItemTiles.push({three3D: inventoryItem, stuff: item.inventoryItem});
+		scene.add(inventoryItem);
 	}
 });
 camera.position.set(myDisplayedTiles[mapLineWidth+1].position.x, 0, myDisplayedTiles[mapLineWidth+1].position.z );
@@ -228,11 +240,31 @@ function animate() {
 		camera.position.x += camera.getWorldDirection().x/speed;
 		walkerZone.position.x = camera.position.x;
 		walkerZone.position.z = camera.position.z;
+		for (inventoryItem in myItemTiles){
+			if (camera.position.distanceTo(myItemTiles[inventoryItem].three3D.position) < tileWidth + 0.2){
+				console.log('Item found!');
+				inventory.push({inventoryItem: myItemTiles[inventoryItem].stuff});
+				console.log("inventory:", inventory);
+				scene.remove(myItemTiles[inventoryItem].three3D);
+				myItemTiles.splice(inventoryItem,1);
+			}
+		}
 		for (goal in myGoalTiles){
-			if (camera.position.distanceTo(myGoalTiles[goal].position) < tileWidth + 0.2){
-				console.log('Goal reached!');
-				scene.remove(myGoalTiles[goal]);
-				myGoalTiles.splice(goal,1);
+			if (camera.position.distanceTo(myGoalTiles[goal].three3D.position) < tileWidth + 0.2){
+				if (myGoalTiles[goal].hasOwnProperty("requirement")) {
+					var missingItem = true;
+					for (item in inventory){
+						if (inventory[item].inventoryItem == myGoalTiles[goal].requirement) {
+							console.log('Goal reached!');
+							scene.remove(myGoalTiles[goal].three3D);
+							myGoalTiles.splice(goal,1);
+							missingItem = false;
+						}
+					}
+					if (missingItem) { // never happens
+						console.log("You are missing something...");
+					}
+				}
 			}
 		}
 	}
