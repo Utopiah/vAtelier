@@ -247,6 +247,44 @@ walkerZone.ongazeout = function() {
 }
 reticle.add_collider(walkerZone);
 
+var mygeometry = new THREE.CubeGeometry( 1, 0.5, 0.1 );
+var mymaterial = new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true});
+HUDpart1 = new THREE.Mesh( mygeometry, mymaterial );
+var mygeometry = new THREE.CubeGeometry( 2, 0.5, 0.1 );
+var mymaterial = new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true});
+HUDpart2 = new THREE.Mesh( mygeometry, mymaterial );
+HUD = new THREE.Object3D();
+HUD.add(HUDpart1);
+HUD.add(HUDpart2);
+HUD.position = camera.position;
+HUD.position.setZ(-1);
+HUDpart2.rotateY(Math.PI/2);
+HUD.lookAt(camera.position);
+HUD.rotateY(Math.PI/4);
+
+var usingHUD = false;
+var mygeometry = new THREE.CubeGeometry( 0.2, 0.5, 0.1 );
+var mymaterial = new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true});
+HUDZone = new THREE.Mesh( mygeometry, mymaterial );
+HUDZone.position.set(camera.position.x-0.5,0.7,camera.position.z-1);
+HUDZone.lookAt(camera.position);
+scene.add(HUDZone);
+HUDZone.ongazelong = function() {
+	usingHUD = !usingHUD;
+	if (usingHUD) {
+		HUDZone.material.color.setHex(0x00bb00);
+		camera.add(HUD);
+	} else {
+		HUDZone.material.color.setHex(0x0000ff);
+		camera.remove(HUD);
+	}
+}
+HUDZone.ongazeover = function() {
+}
+HUDZone.ongazeout = function() {
+}
+reticle.add_collider(HUDZone);
+
 // boundary sphere
 var geometry = new THREE.SphereGeometry(24, 12, 8);
 var sphere = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xFFFFFF, transparent: true, opacity: 0.5, wireframe: true}));
@@ -279,6 +317,7 @@ function animate() {
 		camera.position.x += camera.getWorldDirection().x/speed;
 		walkerZone.position.x = camera.position.x;
 		walkerZone.position.z = camera.position.z;
+		HUDZone.position.set(camera.position.x-0.5,0.7,camera.position.z-1);
 		for (inventoryItem in myItemTiles){
 			if (camera.position.distanceTo(myItemTiles[inventoryItem].three3D.position) < tileWidth + 0.2){
 				console.log('Item found!');
@@ -311,6 +350,7 @@ function animate() {
     stats.end();
     requestAnimationFrame(animate);
 }
+
 
 
 // Kick off animation loop
