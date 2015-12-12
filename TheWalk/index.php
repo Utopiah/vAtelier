@@ -54,6 +54,7 @@ Helps enter and exit VR mode, provides best practices while in VR.
 Library to handle visual interaction with object using ray casting.
 -->
 <script src="/MyDemo/js/vreticle.js"></script>
+<script src="/MyDemo/js/Tween.js"></script>
 
 <!--
 Make sure that, in addition to being technically correct, the VR app is actually pleasant
@@ -177,7 +178,7 @@ for (tile in mymap){
 			//myTerrainTiles[myTerrainTiles.length-1].goalRequires = "redKey";
 		}
 	} else if (mymap[tile] == 2) {
-		myTerrainTiles.push({color: 0x0000ff, x:X, y: -1.2, z:Z, blocking: true});
+		myTerrainTiles.push({color: 0x0000ff, x:X, y: -1, z:Z, falling: true});
 	} else {
 		myTerrainTiles.push({color: 0x00ff00, x:X, y: -1, z:Z });
 	}
@@ -190,6 +191,7 @@ for (tile in mymap){
 
 var tileWidth = 1;
 var tileLength = 1;
+var myFallingTiles = new Array();
 var myDisplayedTiles = new Array();
 var myWallingTiles = new Array();
 var myGoalTiles = new Array();
@@ -212,6 +214,9 @@ myTerrainTiles.forEach( function(item, index, array){
 		mytexture.wrapS = mytexture.wrapT = THREE.ClampToEdgeWrapping;
 		mytexture.repeat.set( 1, 0.05 );
 		tile.scale.z = 0.05;
+	}
+        if (item.hasOwnProperty('falling')){
+		myFallingTiles.push(tile);
 	}
         if (item.hasOwnProperty('blocking')){
 		var blockingtile = tile.clone();
@@ -347,6 +352,15 @@ function animate() {
 		}
 	}
 	if (!tooClose){
+		for (fall in myFallingTiles){
+			if (camera.position.distanceTo(myFallingTiles[fall].position) < tileWidth + 0.2){
+				console.log("falling!");
+				var endpos = new THREE.Vector3(camera.position.x, -200, camera.position.z);
+				var falltween = new TWEEN.Tween(camera.position).to(endpos, 5000);
+				falltween.start();
+			}
+		}
+
 		camera.position.z += camera.getWorldDirection().z/speed;
 		camera.position.x += camera.getWorldDirection().x/speed;
 		walkerZone.position.x = camera.position.x;
@@ -368,6 +382,7 @@ function animate() {
 		}
 	}
     }
+    TWEEN.update();
     stats.end();
     requestAnimationFrame(animate);
 }
