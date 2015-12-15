@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>The Walk VR demo in less than an hour.</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<style>
+body {
+  background-color: #000;
+  color: #fff;
+  margin: 0px;
+  padding: 0;
+  overflow: hidden;
+}
+</style>
+</head>
+
+<body>
+
+</body>
+
+<script>
+// Set this to true to enable the polyfill and split screen rendering
+// even if the device is incompatible with Cardboard (eg. desktop).
+// NOTE: This should never be checked in as true.
+CARDBOARD_DEBUG = false;
+</script>
+
+<!--
+Library to handle 3D in the browser using webGL.
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r14/Stats.js"></script>
+<script src="http://vatelier.net/MyDemo/js/three.js"></script>
+<!--
+VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object.
+-->
+<script src="http://vatelier.net/MyDemo/js/VRControls.js"></script>
+<!--
+VREffect.js handles stereo camera setup and rendering.
+-->
+<script src="http://vatelier.net/MyDemo/js/VREffect.js"></script>
+<!--
+A polyfill for WebVR using the Device{Motion,Orientation}Event API.
+-->
+<script src="http://vatelier.net/MyDemo/js/webvr-polyfill.js"></script>
+<!--
+Helps enter and exit VR mode, provides best practices while in VR.
+-->
+<script src="http://vatelier.net/MyDemo/js/webvr-manager.js"></script>
+<!--
+Library to handle visual interaction with object using ray casting.
+-->
+<script src="http://vatelier.net/MyDemo/js/vreticle.js"></script>
+<script src="http://vatelier.net/MyDemo/js/Tween.js"></script>
+
+<!--
+Make sure that, in addition to being technically correct, the VR app is actually pleasant
+following lessons from cognitive science.
+-->
+<script src="http://vatelier.net/MyDemo/js/VRGoodPractices.js"></script>
+<script src="http://vatelier.net/MyDemo/TheWalk/map_data.js"></script>
+
+<script>
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
+
+var stats = new Stats();
+stats.setMode( 0 ); // 0: fps, 1: ms, 2: mb
+
+// align top-left
+stats.domElement.style.position = 'absolute';
+stats.domElement.style.left = '0px';
+stats.domElement.style.top = '0px';
+
+document.body.appendChild( stats.domElement );
+
+var mydebug = true;
+
+//Setup three.js WebGL renderer
+var renderer = new THREE.WebGLRenderer({
+    antialias: true
+});
+renderer.setPixelRatio(window.devicePixelRatio);
+
+// Append the canvas element created by the renderer to document body element.
+document.body.appendChild(renderer.domElement);
+
+// Create a three.js scene.
+var scene = new THREE.Scene();
+
+// Create a three.js camera.
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.3, 10000);
+//create gaze interaction manager
+var reticle = vreticle.Reticle(camera);
+//if (mapLineCounter==9&&mapCurrentLine==7){
+camera.position.set(Math.floor((Math.random() * 8) + 2),0,Math.floor((Math.random() * 8) + 2));
+scene.add(camera);
+var playerColor = Math.random() * 0xffffff;
+var playerUuid = guid();
+
+var socket = new WebSocket("ws://fabien.benetou.fr:8889");
+socket.onopen = function(){
+	//socket.send(JSON.stringify({uuid: playerUuid, color: playerColor, position: camera.position}));
+	socket.send("Player connected to the virtual world");
+};
+socket.onmessage = function(msg){
+	console.log('data:', msg.data);
+
+	if (msg.data == "down button pressed "){
+		camera.position.x += 0.2;
+	}
+	if (msg.data == "up button pressed "){
+		camera.position.x -= 0.2;
+	}
+	if (msg.data == "select button pressed "){
+		camera.position.z += 0.2;
+	}
+	if (msg.data.indexOf("Tap event") !=-1) {
+		camera.position.z -= 0.5;
+	}
+
+	/*
+        var mygeometry = new THREE.CubeGeometry( 0.5, 1, 0.5 );
+	var mymaterial = new THREE.MeshBasicMaterial({color: updatedPlayer.color});
+        playerBox = new THREE.Mesh( mygeometry, mymaterial );
+        playerBox.position.set(updatedPlayer.position.x, updatedPlayer.position.y, updatedPlayer.position.z);
+        scene.add(playerBox);
+	*/
+};
+
+
+// Apply VR headset positional data to camera.
+var controls = new THREE.VRControls(camera);
+
+// Apply VR stereo rendering to renderer.
+var effect = new THREE.VREffect(renderer);
+effect.setSize(window.innerWidth, window.innerHeight);
+
+// Create a VR manager helper to enter and exit VR mode.
+var manager = new WebVRManager(renderer, effect, {
+    hideButton: false
+});
+
+var mymap = [
+7,7,7,7,7,7,7,7,7,7,
+7,0,0,0,0,0,0,0,0,7,
+7,0,0,0,0,0,0,0,0,7,
+7,0,0,0,0,0,0,0,0,7,
+7,0,0,0,0,0,0,0,0,7,
+7,0,0,0,0,0,0,0,0,7,
+7,0,0,0,0,0,0,0,0,7,
+7,0,0,0,0,0,0,0,0,7,
+7,0,0,0,0,0,0,0,0,7,
+7,7,7,7,7,7,7,7,7,7
+];
+var speed = 50;
+
+var mapLineCounter = 1;
+var mapLineWidth = Math.sqrt(mymap.length);
+var mapCurrentLine = 0;
+
+var inventory = new Array();
+
+var myTerrainTiles = new Array();
+for (tile in mymap){
+	var X = mapLineCounter;
+	var Z = mapCurrentLine;
+	if (mymap[tile] == 7){ // 7 used for walls
+		myTerrainTiles.push({color: 0xf0f0f0, x:X, y: -0.5, z:Z, blocking: true });
+	} else {
+		myTerrainTiles.push({color: 0x00ff00, x:X, y: -1, z:Z });
+	}
+	if (mapLineCounter>=mapLineWidth){
+		mapLineCounter = 0;
+		mapCurrentLine++;
+	}	
+	mapLineCounter++;
+}
+
+var tileWidth = 1;
+var tileLength = 1;
+var myFallingTiles = new Array();
+var myDisplayedTiles = new Array();
+var myWallingTiles = new Array();
+var myGoalTiles = new Array();
+var myItemTiles = new Array();
+myTerrainTiles.forEach( function(item, index, array){
+        var mygeometry = new THREE.CubeGeometry( tileWidth, 0.1, tileLength );
+	var mymaterial = new THREE.MeshBasicMaterial({color: item.color, transparent: true, opacity:0.9});
+        tile = new THREE.Mesh( mygeometry, mymaterial );
+        tile.position.set(item.x, item.y, item.z);
+        scene.add(tile);
+	myDisplayedTiles.push(tile);
+        if (item.hasOwnProperty('blocking')){
+		var blockingtile = tile.clone();
+		blockingtile.position.set(item.x, -0.5, item.z);
+		myWallingTiles.push(blockingtile);
+	}
+});
+
+var walking = false;
+var mygeometry = new THREE.CubeGeometry( 0.2, 0.1, 0.2 );
+var mymaterial = new THREE.MeshBasicMaterial({color: 0xff0000});
+walkerZone = new THREE.Mesh( mygeometry, mymaterial );
+walkerZone.position.set(camera.position.x,-0.9,camera.position.z);
+scene.add(walkerZone);
+walkerZone.ongazelong = function() {
+	walking = !walking;
+	walkerZone.material.color.setHex(0xff0000);
+	if (walking) walkerZone.material.color.setHex(0x00bb00);
+}
+walkerZone.ongazeover = function() {
+}
+walkerZone.ongazeout = function() {
+}
+reticle.add_collider(walkerZone);
+
+// boundary sphere
+var geometry = new THREE.SphereGeometry(24, 12, 8);
+var sphere = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xFFFFFF, transparent: true, opacity: 0.5, wireframe: true}));
+scene.add(sphere);
+
+// Request animation frame loop function
+function animate() {
+
+    stats.begin();
+    // Update VR headset position and apply to camera.
+    controls.update();
+    // Render the scene through the manager.
+    manager.render(scene, camera);
+
+    reticle.reticle_loop();
+
+
+    if (walking){
+        var futurPosition = camera.position.clone();
+        futurPosition.z += camera.getWorldDirection().z/speed;
+        futurPosition.x += camera.getWorldDirection().x/speed;
+
+	var tooClose = false;
+	for (wall in myWallingTiles){
+		if (futurPosition.distanceTo(myWallingTiles[wall].position) < tileWidth){
+			tooClose=true;
+			socket.send("vibrate");
+			// WARNING that's a LOT of vibrations!
+		}
+	}
+	if (!tooClose){
+		camera.position.z += camera.getWorldDirection().z/speed;
+		camera.position.x += camera.getWorldDirection().x/speed;
+		walkerZone.position.x = camera.position.x;
+		walkerZone.position.z = camera.position.z;
+		console.log('sent new position');
+	}
+    }
+    TWEEN.update();
+    stats.end();
+    requestAnimationFrame(animate);
+}
+
+
+
+// Kick off animation loop
+animate();
+
+function onKey(event) {
+    if (event.keyCode == 90) { // z to reset the sensors
+        controls.resetSensor();
+	if (mydebug) console.log("sensor resetted");
+    }
+    if (event.keyCode == 13) { // enter to start
+    }
+};
+
+function onClick(event) {
+};
+
+window.addEventListener('onclick', onClick, true);
+window.addEventListener('click', onClick, true);
+// does not work on mobile
+
+window.addEventListener('keydown', onKey, true);
+// Handle window resizes
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    effect.setSize(window.innerWidth, window.innerHeight);
+}
+
+</script>
+</html>
