@@ -95,7 +95,7 @@ myfloor.position.set(0.5, -3, 0);
 scene.add(myfloor);
 
 var mygeometry = new THREE.CubeGeometry(1, 1, 0.1);
-mytexture = THREE.ImageUtils.loadTexture('textures/motivation_poster.jpg');
+mytexture = THREE.ImageUtils.loadTexture('../textures/motivation_poster.jpg');
 var mymaterial = new THREE.MeshBasicMaterial({
     map: mytexture
 });
@@ -114,7 +114,7 @@ loader.load('ouroborus_with_stepping_stones.stl');
     
 // Also add a repeating grid as a skybox.
 var boxWidth = 50;
-var texture = THREE.ImageUtils.loadTexture( 'textures/box.png');
+var texture = THREE.ImageUtils.loadTexture( '../textures/box.png');
 texture.wrapS = THREE.RepeatWrapping;
 texture.wrapT = THREE.RepeatWrapping;
 texture.repeat.set(boxWidth, boxWidth);
