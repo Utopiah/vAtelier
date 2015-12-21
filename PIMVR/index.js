@@ -31,7 +31,7 @@ var pagesize = 1;
 // functions assumed a scene nammed "scene"
 
 // adding a page from the graph to the 3D scene
-function PositionPage(dictionary, PIMPage, position){
+function PositionPage(dictionary, PIMPage, position, tweening){
 	if (!position) {
 		var boundary = -5;
 		var position = new THREE.Vector3(Math.random() * 2 * (-boundary) + boundary,
@@ -43,9 +43,18 @@ function PositionPage(dictionary, PIMPage, position){
 	// consider instead http://threejs.org/docs/#Reference/Loaders/TextureLoader
 	var mymaterial = new THREE.MeshBasicMaterial({map: mytexture, transparent: false, opacity: 0.2, });
 	newpage = new THREE.Mesh( mygeometry, mymaterial );
-	newpage.position.copy(position);
+	newpage.lookAt(camera.position);
+	if (!tweening){
+		newpage.position.copy(position);
+	} else {
+		var pageInitialTweenPosition = new TWEEN.Tween(newpage.position).to(position, 5*1000).start();
+	}
 	scene.add(newpage);
 	PIMPage.ThreeD = newpage;
+	newpage.ongazeover = function() {
+		PIMPage.ThreeD.lookAt(camera.position);
+	}
+        reticle.add_collider(newpage);
 	return dictionary;
 }
 
@@ -110,9 +119,9 @@ function PositionPagesAsSphere(dictionary, startingkey, limit){
 		var pageposition = new THREE.Vector3(x,y,z);
 		pageposition.normalize();
 		pageposition.multiplyScalar( radius );
-		PositionPage(dictionary, PIMPage, pageposition);
+		//PositionPage(dictionary, PIMPage, pageposition);
+		PositionPage(dictionary, PIMPage, pageposition, true);
 		PositionPageJumpButton(dictionary, PIMPage);
-		PIMPage.ThreeD.lookAt(camera.position);
 	}
 }
 
@@ -144,6 +153,7 @@ function animate(timestamp) {
   // Render the scene through the manager.
   manager.render(scene, camera, timestamp);
 
+  TWEEN.update();
   reticle.reticle_loop();
   requestAnimationFrame(animate);
 }
