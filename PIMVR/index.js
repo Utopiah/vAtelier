@@ -32,8 +32,14 @@ var pagesize = 1;
 
 // adding a page from the graph to the 3D scene
 function PositionPage(dictionary, PIMPage, position){
-	var mygeometry = new THREE.CubeGeometry(pagesize, pagesize, pagesize * PIMPage.Rev / 100)
-		mytexture = THREE.ImageUtils.loadTexture("../MyRenderedPages/fabien.benetou.fr_" + PIMPage.Id.replace(".", "_") + ".png");
+	if (!position) {
+		var boundary = -5;
+		var position = new THREE.Vector3(Math.random() * 2 * (-boundary) + boundary,
+				Math.random() * 2 * (-boundary) + boundary,
+				Math.random() * 2 * (-boundary) + boundary);
+	}
+	var mygeometry = new THREE.CubeGeometry(pagesize, pagesize, pagesize * PIMPage.Rev / 100);
+	var mytexture = THREE.ImageUtils.loadTexture("../MyRenderedPages/fabien.benetou.fr_" + PIMPage.Id.replace(".", "_") + ".png");
 	// consider instead http://threejs.org/docs/#Reference/Loaders/TextureLoader
 	var mymaterial = new THREE.MeshBasicMaterial({map: mytexture, transparent: false, opacity: 0.2, });
 	newpage = new THREE.Mesh( mygeometry, mymaterial );
@@ -45,14 +51,14 @@ function PositionPage(dictionary, PIMPage, position){
 
 // add a button on the top right corner of a positionned page
 function PositionPageJumpButton(dictionary, PIMPage) {
-	var geometry = new THREE.CubeGeometry(pagesize/10, pagesize/10, pagesize/10);
+	var pageproportion = pagesize/5;
+	var geometry = new THREE.CubeGeometry(pageproportion, pageproportion, pageproportion); 
 	var material = new THREE.MeshBasicMaterial({color: 0x00FFFF, transparent: true, opacity: 0.5 });
 	var jumpbutton = new THREE.Mesh(geometry, material);
-	jumpbutton.position.copy( PIMPage.ThreeD.position  );
-	jumpbutton.position.y += pagesize/2 - pagesize/10;
-	jumpbutton.position.x += pagesize/2 + pagesize/10;
-	jumpbutton.position.z += pagesize/2 - pagesize/10;
-	scene.add(jumpbutton);
+	jumpbutton.position = PIMPage.ThreeD.position;
+	jumpbutton.position.setX(pagesize/2 + pagesize/10);
+	jumpbutton.position.setY(pagesize/2 - pagesize/10);
+	PIMPage.ThreeD.add(jumpbutton);
 	
         jumpbutton.ongazelong = function() {
 		PositionPageTargets(dictionary, PIMPage);
@@ -64,6 +70,7 @@ function PositionPageJumpButton(dictionary, PIMPage) {
 		jumpbutton.scale.set(1,1,1);
         }
         reticle.add_collider(jumpbutton);
+	return PIMPage;
 }
 
 // Display the targets of a page (linked item)
@@ -71,37 +78,46 @@ function PositionPageTargets(dictionary, PIMPage){
 	var backgroundPosition = new THREE.Vector3();
 	backgroundPosition.copy(PIMPage.ThreeD.position);
 	backgroundPosition.z = -5;
-	var maxTargets = 5;
+	var maxDisplayedTargets = 5;
 	var displayedTargets = 0;
 	for (targetPage in PIMPage.Targets){
-		// can display a lot, in fact enough to crash the browser
 		var targetPageObj = dictionary[keys[targetPage]];
-		if (displayedTargets < maxTargets) {
+		// can display a lot, in fact enough to crash the browser
+		if (displayedTargets < maxDisplayedTargets) {
 			PositionPage(dictionary, targetPageObj, backgroundPosition);
+			PositionPageJumpButton(dictionary, targetPageObj);
+			backgroundPosition.y += pagesize + pagesize/10;	
 			displayedTargets++;
 		}
-		// add page button
-		backgroundPosition.y += pagesize + pagesize/10;	
 	}
 	return dictionary;
 }
 
-// Display the first pages (no specific order)
-var maxNumberOFPagesToDisplay = 5;
-for (var i=0;i<maxNumberOFPagesToDisplay;i++){
-	var PIMPage = dictionary[keys[i]];
-
-	var radius = 3;
-	var x = Math.random() - 0.5;
-	var y = Math.random() - 0.5;
-	var z = Math.random() - 0.5;
-	var pageposition = new THREE.Vector3(x,y,z);
-	pageposition.normalize();
-	pageposition.multiplyScalar( radius );
-	PositionPage(dictionary, PIMPage, pageposition);
-	PositionPageJumpButton(dictionary, PIMPage);
-	PIMPage.ThreeD.lookAt(camera.position);
+function PositionPagesAsSphere(dictionary, startingkey, limit){
+	// Display the first pages (no specific order)
+	if (!limit){
+		var limit = 5;
+	}
+	if (!startingkey){
+		var startingkey = 0;
+	}
+	for (var i=startingkey;i<startingkey+limit;i++){
+		var PIMPage = dictionary[keys[i]];
+		var radius = 3;
+		var x = Math.random() - 0.5;
+		var y = Math.random() - 0.5;
+		var z = Math.random() - 0.5;
+		var pageposition = new THREE.Vector3(x,y,z);
+		pageposition.normalize();
+		pageposition.multiplyScalar( radius );
+		PositionPage(dictionary, PIMPage, pageposition);
+		PositionPageJumpButton(dictionary, PIMPage);
+		PIMPage.ThreeD.lookAt(camera.position);
+	}
 }
+
+//PositionPagesAsSphere(dictionary);
+PositionPagesAsSphere(dictionary, 0, 5);
 
 // Apply VR headset positional data to camera.
 var controls = new THREE.VRControls(camera);
