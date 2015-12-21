@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>FuturUI inspired by Ghost in the Shell</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<style>
+body {
+  background-color: #000;
+  color: #fff;
+  margin: 0px;
+  padding: 0;
+  overflow: hidden;
+}
+</style>
+</head>
+
+<body>
+
+</body>
+
+<script>
+// Set this to true to enable the polyfill and split screen rendering
+// even if the device is incompatible with Cardboard (eg. desktop).
+// NOTE: This should never be checked in as true.
+CARDBOARD_DEBUG = false;
+</script>
+
+<!--
+Library to display and manage a GUI on top of the visualization, useful mostly for testing values of properties.
+Note that it can often conflict with VRControls or even event defined by the script.
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"></script>
+<!--
+Library to handle 3D in the browser using webGL.
+-->
+<script src="../js/three.js"></script>
+<!--
+VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object.
+-->
+<script src="../js/VRControls.js"></script>
+<!--
+VREffect.js handles stereo camera setup and rendering.
+-->
+<script src="../js/VREffect.js"></script>
+<!--
+A polyfill for WebVR using the Device{Motion,Orientation}Event API.
+-->
+<script src="../js/webvr-polyfill.js"></script>
+<!--
+Helps enter and exit VR mode, provides best practices while in VR.
+-->
+<script src="../js/webvr-manager.js"></script>
+<!--
+Library to handle visual interaction with object using ray casting.
+-->
+<script src="../js/vreticle.js"></script>
+
+<!--
+https://github.com/tweenjs/tween.js/
+-->
+<script src="../js/Tween.js"></script>
+<!--
+Code actually dedicated to partially render a PIM as a VR world.
+-->
+
+<script src="./futurui.js"></script>
+
+<!--
+Make sure that, in addition to being technically correct, the VR app is actually pleasant
+following lessons from cognitive science.
+-->
+<script src="../VRGoodPractices.js"></script>
+
+</html>
