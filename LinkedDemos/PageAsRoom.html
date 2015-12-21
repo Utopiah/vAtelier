@@ -29,23 +29,23 @@ body {
 CARDBOARD_DEBUG = false;
 </script>
 
-<script src="./js/three.js"></script>
+<script src="../js/three.js"></script>
 <!--
 VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object.
 -->
-<script src="./js/VRControls.js"></script>
+<script src="../js/VRControls.js"></script>
 <!--
 VREffect.js handles stereo camera setup and rendering.
 -->
-<script src="./js/VREffect.js"></script>
+<script src="../js/VREffect.js"></script>
 <!--
 A polyfill for WebVR using the Device{Motion,Orientation}Event API.
 -->
-<script src="./js/webvr-polyfill.js"></script>
+<script src="../js/webvr-polyfill.js"></script>
 <!--
 Helps enter and exit VR mode, provides best practices while in VR.
 -->
-<script src="./js/webvr-manager.js"></script>
+<script src="../js/webvr-manager.js"></script>
 
 <script>
 
@@ -116,7 +116,7 @@ var cube = new THREE.Mesh(geometry, material);
     BASELOCALPATH = "/home/web/benetou.fr/fabien/wiki.d/";
 
 var mygeometry = new THREE.CubeGeometry( 1, 1, 0.1 );
-mytexture = THREE.ImageUtils.loadTexture('textures/motivation_poster.jpg');
+mytexture = THREE.ImageUtils.loadTexture('../textures/motivation_poster.jpg');
 var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
 tmpcube = new THREE.Mesh( mygeometry, mymaterial );
 tmpcube.position.set(0, 0, 2);
@@ -127,7 +127,7 @@ scene.add(tmpcube);
 // TODO flatten then link on click to https://github.com/Utopiah/CC2015Goal3Month1 2 and 3 as own rooms
 var mygeometry = new THREE.CubeGeometry( 1.5, 1.5, 0.1 );
 //var mygeometry = new THREE.SphereGeometry(75, 16, 8, 0, 2, 1, 1.2);
-mytexture = THREE.ImageUtils.loadTexture("./MyRenderedPages/fabien.benetou.fr_" + QueryString.PIMPage.replace(".", "_") + ".png");
+mytexture = THREE.ImageUtils.loadTexture("../MyRenderedPages/fabien.benetou.fr_" + QueryString.PIMPage.replace(".", "_") + ".png");
 var mymaterial = new THREE.MeshBasicMaterial({map: mytexture});
 //var mymaterial = new THREE.MeshBasicMaterial({wireframe:true});
 tmpcube = new THREE.Mesh( mygeometry, mymaterial );
@@ -136,6 +136,9 @@ tmpcube.position.set(0, 0, -1.3);
 //tmpcube.position.set(0, 0, -1);
 //tmpcube.rotateY(1.5);
 scene.add(tmpcube);
+
+// TODO
+/* add facing the edition part, cf discussion with the author of the live coding Oculus demo , iirc RiftSketch*/
 
 // TODO remove old cube
 cube.position.y = -1;
@@ -148,7 +151,7 @@ scene.add(cube);
 // Also add a repeating grid as a skybox.
 var boxWidth = 10;
 var texture = THREE.ImageUtils.loadTexture(
-        'textures/box.png'
+        '../textures/box.png'
 );
 texture.wrapS = THREE.RepeatWrapping;
 texture.wrapT = THREE.RepeatWrapping;
@@ -185,7 +188,7 @@ animate();
 // Reset the position sensor when 'z' pressed.
 function onKey(event) {
   if (event.keyCode == 13) { // enter
-	window.open ('index.html','_self',false)
+	window.open ('./','_self',false)
   }
 };
 

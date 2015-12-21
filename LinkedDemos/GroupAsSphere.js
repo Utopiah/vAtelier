@@ -1,4 +1,5 @@
 var mydebug = true;
+var mydebug = false;
 
 var params = {
     positionZpages: -2
@@ -52,6 +53,9 @@ var QueryString = function () {
 
 console.log("QueryString.PIMPage: ",QueryString.PIMGroup);
 var TargetGroup = QueryString.PIMGroup;
+if (!TargetGroup) TargetGroup = "Wiki";
+console.log("TargetGroup:");
+console.log(TargetGroup);
 // TODO expected to be called from GroupAsSphere.html?PIMGroup=TargetGroup
 // should return a group
 
@@ -118,7 +122,7 @@ while (pagesdisplayed < maxpages && i < arr.Nodes.length) {
 	if ((arr.Nodes[i].Id.indexOf("RecentChanges") == -1) && (arr.Nodes[i].Id.indexOf("PmWiki.") == -1) && (currentgroup == TargetGroup)) {
 		// depth based on number of revisions i.e. the more revision, the deeper the shape
 		var mygeometry = new THREE.CubeGeometry(pagesize, pagesize, pagesize * arr.Nodes[i].Rev / 100)
-		mytexture = THREE.ImageUtils.loadTexture("./MyRenderedPages/fabien.benetou.fr_" + arr.Nodes[i].Id.replace(".", "_") + ".png");
+		mytexture = THREE.ImageUtils.loadTexture("../MyRenderedPages/fabien.benetou.fr_" + arr.Nodes[i].Id.replace(".", "_") + ".png");
 		// should manage onError texture loading, requires closures though
 		mytexture.minFilter = THREE.LinearFilter;
 		var mymaterial = new THREE.MeshBasicMaterial({ map: mytexture });
@@ -143,6 +147,7 @@ while (pagesdisplayed < maxpages && i < arr.Nodes.length) {
 	i++;
 }
 
+/*
 // cheating, random connections
 for (var i=0;i<10;i++){
 	var geometry= new THREE.Geometry();
@@ -154,6 +159,7 @@ for (var i=0;i<10;i++){
 	var line = new THREE.Line(geometry);
 	scene.add(line);
 }
+*/
 
 currentlygazedcube = false;
 pickedcube = false;
@@ -177,7 +183,7 @@ threedisplaypages.forEach(function (item, index, array){
 });
 
 var mygeometry = new THREE.CubeGeometry(1, 1, 0.1);
-mytexture = THREE.ImageUtils.loadTexture('textures/motivation_poster.jpg');
+mytexture = THREE.ImageUtils.loadTexture('../textures/motivation_poster.jpg');
 var mymaterial = new THREE.MeshBasicMaterial({
     map: mytexture
 });
@@ -187,7 +193,7 @@ scene.add(myposter);
 
 // Also add a repeating grid as a skybox.
 var boxWidth = 10;
-var texture = THREE.ImageUtils.loadTexture( 'textures/box.png');
+var texture = THREE.ImageUtils.loadTexture( '../textures/box.png');
 texture.wrapS = THREE.RepeatWrapping;
 texture.wrapT = THREE.RepeatWrapping;
 texture.repeat.set(boxWidth, boxWidth);
@@ -248,7 +254,10 @@ function onKey(event) {
 };
 
 function onClick(event) {
-    window.open('ExamplePageAsRoom.html', '_self', false);
+	if (currentlygazedcube) {
+		if (mydebug) console.log("should window.open on this page: ", currentlygazedcube);
+		window.open('PageAsRoom.html?PIMPage='+currentlygazedcube, '_self', false);
+	}
 };
 window.addEventListener('dblclick', onClick, true);
 // does not work on mobile
