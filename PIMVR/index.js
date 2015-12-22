@@ -39,7 +39,20 @@ function PositionPage(dictionary, PIMPage, position, tweening){
 				Math.random() * 2 * (-boundary) + boundary);
 	}
 	var mygeometry = new THREE.CubeGeometry(pagesize, pagesize, pagesize * PIMPage.Rev / 100);
-	var mytexture = THREE.ImageUtils.loadTexture("../MyRenderedPages/fabien.benetou.fr_" + PIMPage.Id.replace(".", "_") + ".png");
+	var image = "../MyRenderedPages/fabien.benetou.fr_" + PIMPage.Id.replace(".", "_") + ".png";
+	var mytexture = THREE.ImageUtils.loadTexture(image);
+	//console.log(mytexture.image.width,mytexture.image.height);
+	/* Find the page with the idea size e.g. Size of 500 then offset and repeat accordingly for smaller and longer pages
+	console.log(PIMPage.Id+':'+PIMPage.Size);
+	if (PIMPage.Size > 800){
+	var vertucalrepeat = PIMPage.Size
+	mytexture.wrapS = mytexture.wrapT = THREE.RepeatWrapping;
+	mytexture.repeat.set( 1, 0.5 );
+	mytexture.offset.set( 1, 10 );
+	}
+	// e.g. Events.AIW03 has width of 400x1385 (50% resize after rendering)
+	// and page size of ... irrelevant as this is text only! A page might have 1 line of text but one very long vertical image.
+	*/
 	// consider instead http://threejs.org/docs/#Reference/Loaders/TextureLoader
 	var mymaterial = new THREE.MeshBasicMaterial({map: mytexture, transparent: false, opacity: 0.2, });
 	newpage = new THREE.Mesh( mygeometry, mymaterial );
