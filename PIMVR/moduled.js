@@ -6,7 +6,6 @@ renderer.setPixelRatio(window.devicePixelRatio);
 // Append the canvas element created by the renderer to document body element.
 document.body.appendChild(renderer.domElement);
 
-
 // Create a three.js scene.
 var scene = new THREE.Scene();
 
@@ -20,24 +19,18 @@ arr=MyWiki; //imported before as .js file
 var dictionary = arr.Nodes;
 var keys = [];
 keys = Object.keys(dictionary);
-
-// example of traversing the graph
 var firstkey = keys[0];
-
-// "PmWiki.Links" = {Id:"PmWiki.Links", Group:"PmWiki", Label:"Links", Size:6064, Time:1161032541, Rev:5, Texture: "HomePage.png", Targets: ["group1,page2", "group2.page1"]},
 
 var pagesize = 1;
 
 // functions assumed a scene nammed "scene"
 
-// TODO include instead pimvr.js
 requirejs(['pimvr'], function(pimvr){
 	console.log('Module loaded');
 	PIMVR.PositionPagesAsSphere(dictionary, 0, 5);
+	//using optional starting page and limit parameters
+	//PositionPagesAsSphere(dictionary);
 });
-
-
-//PositionPagesAsSphere(dictionary);
 
 // Apply VR headset positional data to camera.
 var controls = new THREE.VRControls(camera);
@@ -53,7 +46,6 @@ scene.add(sphere);
 
 // Create a VR manager helper to enter and exit VR mode.
 var manager = new WebVRManager(renderer, effect, {hideButton: false});
-
 
 // Request animation frame loop function
 function animate(timestamp) {
